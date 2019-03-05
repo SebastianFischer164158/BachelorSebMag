@@ -1,7 +1,50 @@
 #include <BigNumber.h>
 //bool operator== (const BigNumber & rhs) const;
 
-BigNumber modInverse(BigNumber,BigNumber);
+BigNumber z,x,y;
+
+BigNumber power(BigNumber A, BigNumber B, BigNumber M){
+  
+    BigNumber two = 2;
+    BigNumber result=1;
+    BigNumber S = A;        
+    while(B>0){
+        if(B % two ==1){
+            result=(result * S)%M;  
+        }
+        S=(S*S)%M;     
+        B=B/two;
+    }
+    return (BigNumber)result;
+}
+
+void extendedEuclid(BigNumber A, BigNumber B)
+{
+BigNumber temp;                      
+    if(B == 0)
+    {
+        z = A;
+        x = 1;
+        y = 0;
+    }
+    else
+    {
+        extendedEuclid(B,A%B);
+        temp = x;
+        x = y;
+        y = temp - (A/B)*y;
+    }
+}
+
+BigNumber modInv(BigNumber A, BigNumber M)
+{
+    extendedEuclid(A,M);
+    if (x < 0){
+      x += M;
+    }
+        
+    return x;
+}
 
 void setup ()
 {
@@ -17,7 +60,7 @@ void setup ()
   BigNumber phi = (p-"1")*(q-"1"); //øhhh, det virkede ikke lige med normal et'ere men burde virke nu 
   Serial.print("The phi function is equal to   : ");Serial.println(phi);
 
-  BigNumber d = modInverse(e,phi);
+  BigNumber d = modInv(e,phi);
   Serial.print("The modular inverse is equal to: ");
   Serial.println(d);
 
@@ -40,13 +83,4 @@ void setup ()
 
 void loop () { }
 
-BigNumber modInverse(BigNumber a, BigNumber m) 
-{ 
-    a = a%m; 
-    for (BigNumber i=1; i<m; i++){
-      if ((a*i) % m == 1){ //m.powMod (e,n); //test which method is fastest. 
-        return i;
-      }
-    }
-    
-} 
+ 
