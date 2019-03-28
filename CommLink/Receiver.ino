@@ -1,5 +1,6 @@
 /////RECEIVER/SERVER UDP WIFI CODE/////
 #include "RSA.h"
+#include "AES.h"
 #include "WiFi.h" //This needs to be a ESP32 in order to work, does NOT work with an EPS8266, requires WiFiesp8266 library instead.
 #include "WiFiUdp.h"
 //#include "BigNumber.h" //burde ikke være nødvendigt da den allerede eksisterer
@@ -15,7 +16,9 @@ char ReplyBuffer[] = "ACK";
 IPAddress ServerIP(192,168,4,1);
 IPAddress ClientIP(192,168,4,2);
 #define MAX_BUFFER_SIZE 255
+#define MAX_AES_BUFFER_SIZE 16
 char packetBuffer[MAX_BUFFER_SIZE];   //Where we get the UDP data
+char packetAesBuffer[MAX_AES_BUFFER_SIZE];
  
 void softAPConfigESP(){
   WiFi.softAP(SoftAP_SSID,SoftAP_PASS,SoftAP_Channel,SoftAP_Cloak,SoftAP_Max_Conn);
@@ -53,7 +56,21 @@ String readFromClient(){
   return temp;
 }
 
-void sendUdpPacket(BigNumber msg){
+String readFromClientAES(){
+  String temp = "";
+  while (temp == ""){ // Skal løbe i while loop, da vi skal læse indtil der kommer noget andet end "".
+    udp.parsePacket();
+    while(udp.read(packetAesBuffer,MAX_AES_BUFFER_SIZE)>0){
+      // We've received a UDP packet, send it to serial
+      udp.read(packetAesBuffer, MAX_AES_BUFFER_SIZE); // read the packet into the buffer, we are reading only one byte
+      delay(20);
+    }
+    temp = packetAesBuffer;
+  }
+  return temp;
+}
+
+void sendBignumberPacket(BigNumber msg){
   udp.beginPacket(ClientIP,UDPPort);
   udp.print(msg);
   udp.endPacket();
@@ -62,6 +79,11 @@ void sendUdpPacket(BigNumber msg){
 void clearBuffer(){
   for(int i = 0; i < MAX_BUFFER_SIZE; i++)
     packetBuffer[i] = 0;
+}
+
+void clearAesBuffer(){
+  for(int i = 0; i < MAX_AES_BUFFER_SIZE; i++)
+    packetAesBuffer[i] = 0;
 }
 
 BigNumber castToBignumber(String msg){
@@ -81,6 +103,18 @@ void fromBignumberToIntarray(BigNumber src, int *dst){
     dst[i] = HoldRes.toInt();
   }
 }
+
+void fromStringToIntarray(String src, int *dst){
+  char HoldRes;
+  for (int i = 0; i < 16; i++){
+    HoldRes = src[i];
+
+    dst[i] = (int) HoldRes;
+  }
+}
+
+// sæt den op til de andre globale variabler
+int AES_key[16] = {0};
 
 void CompleteKeySetup(){
   // Generate RSA keys
@@ -107,7 +141,7 @@ void CompleteKeySetup(){
   BigNumber AesKey = Decrypt(encAesKey, publickey, privatekey);
   
   // Aes key as integer array
-  int AES_key[16] = {0};
+  AES_key[16] = {0};
   fromBignumberToIntarray(AesKey,AES_key);
 
   // Send AES ACK
@@ -116,7 +150,33 @@ void CompleteKeySetup(){
   udp.beginPacket(ClientIP,UDPPort);
   udp.printf("Aes Ack");
   udp.endPacket();
+
+  Serial.println();
 }
+
+
+void intArrayToString(int *src){
+  String printer;
+  for (int i = 0; i < 16; i++){
+    if (isAlpha((char) src[i])){
+      printer += (char) src[i];
+    } else {
+      if (src[i] == 0)
+        continue;
+
+      if (i > 0){
+        if (isAlpha(printer[(printer.length()-1)])){
+          if (!(isAlpha((char)src[i]))){
+            printer += ": ";
+          }
+        }
+      }  
+      printer += src[i];    
+    }
+  }
+  Serial.println(printer);
+}
+
     
 void setup(){
   Serial.begin(115200);
@@ -127,13 +187,25 @@ void setup(){
   
   // RSA and AES key exchange
   CompleteKeySetup();
-  
-
 }
- 
-void loop()
-{
-    
-    
- 
+
+
+String encAesMsg = "";
+int holderAes[16] = {0};
+boolean test = true;
+
+void loop(){
+  if (WiFi.softAPgetStationNum() != 0){
+    encAesMsg = readFromClientAES();
+    Serial.print("Encrypted message:  ");
+    fromStringToIntarray(encAesMsg,holderAes);
+    intArrayToString(holderAes);
+  
+    Serial.print("Decrypted message:  ");
+    decryption(holderAes, AES_key);
+    intArrayToString(holderAes); // This is print the decrypted input as string
+    Serial.println();
+  
+    clearAesBuffer();
+  } 
 }
