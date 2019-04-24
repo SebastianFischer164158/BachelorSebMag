@@ -8,6 +8,8 @@
 }
 #endif
 
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
 #include "RSA.h"
 #include "AES.h"
 #include "WiFi.h"
@@ -16,6 +18,9 @@
 WiFiUDP udp;
 #define MAX_BUFFER_SIZE 350
 char standard_packet_buffer[MAX_BUFFER_SIZE]; //Buffer for the UDP packets 
+
+// LCD Display
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 // WiFi network name and password:
 const char * networkName = "ESP32SOFTAP";
@@ -49,11 +54,21 @@ void CompleteKeySetup(void);
 void setup(){
   //Initialize serial
   Serial.begin(115200);
+  
+  lcd.begin();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Booting System");
+  
   BigNumber::begin (); //Calling BigNumber library with c++ 
   BigNumber RSA_KEY_ENCRYPTED[16];
  
   // Connect to the WiFi network
   connectToWiFi(networkName, networkPswd);
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Connected to WIFI.");
 
   // After WiFi connection established, do the key setup.
 
@@ -64,26 +79,38 @@ void setup(){
     //53 45 43 52 45 54 20 4d 45 53 53 41 47 45 20 31 (this is hex)
     //83 69 67 82 69 84 32 77 69 83 83 65 71 69 32 49 (this is decimal)
     //char *test = "SECRET"; if len(msg) < 16, it will be zeros. 
-    char *test = "SECRET";
-    int text_to_encrypt_aes[16] = {0};
-    int txt_len = strlen(test);
-    for(int z = 0; z<txt_len;z++){
-      text_to_encrypt_aes[z] = (int) test[z];
-    }
-    encryption(text_to_encrypt_aes,AES_KEY);
 
-    for(int k = 0; k<16;k++){
-      Serial.println(text_to_encrypt_aes[k]);
-    }
+    delay(1000);
     
-   
-    udp.beginPacket(udpAddress,udpPort);
-    for(int j = 0; j<16; j++){
-    udp.write(text_to_encrypt_aes[j]);
-    }
-    
-    udp.endPacket();   
-  
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("I will start");
+    lcd.setCursor(0, 1);
+    lcd.print("data in: 3");
+
+    delay(1000);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("I will start");
+    lcd.setCursor(0, 1);
+    lcd.print("data in: 2");
+
+    delay(1000);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("I will start");
+    lcd.setCursor(0, 1);
+    lcd.print("data in: 1");
+
+    delay(1000);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("I will start");
+    lcd.setCursor(0, 1);
+    lcd.print("data in: 0");
 }
 
 ////////// MAIN LOOP //////////
@@ -91,29 +118,38 @@ void setup(){
 void loop(){
   
   // Convert internal CPU core temp (F) to C
-  int internal_temp = (temprature_sens_read() - 32) / 1.8;
+  //int internal_temp = (temprature_sens_read() - 32) / 1.8;
+  int internal_temp = random(0,100);
   Serial.print("THIS IS THE TEMPERATURE: ");
   Serial.print(internal_temp);  
   Serial.println();
   char *test = "TEMPERATURE";
   int txt_to_encrypt[16] = {0};
   int txt_len = strlen(test);
+  /*
   for(int z = 0; z<txt_len;z++){
       txt_to_encrypt[z] = (int) test[z];
-    } 
+    }
+  */ 
   txt_to_encrypt[15] = internal_temp;
   encryption(txt_to_encrypt,AES_KEY);
   
-    udp.beginPacket(udpAddress,udpPort);
-    for(int j = 0; j<16; j++){
-    udp.write(txt_to_encrypt[j]);
-    }
-    
-    udp.endPacket();
+  udp.beginPacket(udpAddress,udpPort);
+  for(int j = 0; j<16; j++){
+  udp.write(txt_to_encrypt[j]);
+  }
+  udp.endPacket();
+  udp.flush();
+
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Sending:");
+  lcd.setCursor(0, 1);
+  lcd.print(internal_temp);
   
- 
   //delay(5000);
-  delay(400); //for wireshark traces
+  delay(1000); //for wireshark traces
 
 }
 
@@ -198,7 +234,14 @@ void sendStringPacket(String msg){
 
 void CompleteKeySetup(){
   //STEP 1 RECEIVE RSA KEY//
-  Serial.println("i am here");
+
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Waiting for");
+  lcd.setCursor(0, 1);
+  lcd.print("RSA public Key");
+  
   String RsaKeyString = readFromClient();
   RsaKey = castToBignumber(RsaKeyString);
   Serial.println(RsaKey);
@@ -212,12 +255,24 @@ void CompleteKeySetup(){
 
   sendStringPacket("RsaKey ACK");
   
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Sending RSA Ack");
+  
   //STEP 2 ENCRYPT AES KEY WITH RSA PUBLIC KEY//
   char holdkey[33];
   hexToCharArray(holdkey);
 
   BigNumber AES_CONVERTED_KEY_CHAR = holdkey; //key is now converted from int array to char array and then varible set as bignumber
   BigNumber AES_ENC = Encrypt(AES_CONVERTED_KEY_CHAR,RsaKey);
+
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Send Encrypted");
+  lcd.setCursor(0, 1);
+  lcd.print("AES Key");
   
   udp.beginPacket(udpAddress,udpPort);
   udp.print(AES_ENC);
@@ -228,8 +283,20 @@ void CompleteKeySetup(){
   Serial.println();
 
   clearBuffer();
- 
+
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Foe decrypting");
+  lcd.setCursor(0, 1);
+  lcd.print("Waiting for ack");
+  
   Serial.print("I RECEIVED : "); 
   String ACK = readFromClient();
   Serial.println(ACK);
+
+  delay(1000);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Received ACK");
 }
