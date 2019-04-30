@@ -3,6 +3,8 @@
 #include "AES.h"
 #include "WiFi.h"
 #include "WiFiUdp.h"
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
 //The udp library class
 WiFiUDP udp;
 
@@ -15,7 +17,7 @@ char AES_packet_buffer[MAX_AES_BUFFER_SIZE];
 //WiFi information for the setup. 
 const char *SoftAP_SSID = "ESP32SOFTAP";
 const char *SoftAP_PASS = "testpassword";
-const int SoftAP_Channel = 1;
+const int SoftAP_Channel = 5;
 const int SoftAP_Cloak = 0;
 const int SoftAP_Max_Conn = 3;
 
@@ -26,7 +28,8 @@ char ReplyBuffer[] = "ACK";
 //IP-addresses declarations. 
 IPAddress ServerIP(192,168,4,1);
 IPAddress ClientIP(192,168,4,2);
-
+//LCD
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 //AES KEY Receive
 int AES_KEY_RECEIVED[16] = {0};
 
@@ -34,6 +37,7 @@ int AES_KEY_RECEIVED[16] = {0};
 String encAesMsg = "";
 int AES_TEMP_HOLD[16] = {0};
 boolean test = true;
+boolean firsttime = true;
 
 //Prototype declarations
 void softAPConfigESP(void);
@@ -43,15 +47,21 @@ String readFromClientAES(void);
 void sendBignumberPacket(BigNumber);
 void Clear_Buffers(char*, int);
 BigNumber castToBignumber(String);
-void fromBignumberToIntarray(BigNumber,int*);
 void fromStringToIntarray(String,int *);
 void CompleteKeySetup(void);
-void intArrayToString(int*);
+String intArrayToString(int*);
 
 ////////// SETUP //////////
 void setup(){
   Serial.begin(115200);
   BigNumber::begin();
+
+  delay(1000);
+  lcd.begin();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Booting System");
+  
   
   // Waiting until a connection is established
   APSetup();
@@ -63,9 +73,14 @@ void setup(){
 ////////// MAIN LOOP //////////
 
 void loop(){
+  
   if (WiFi.softAPgetStationNum() != 0){
+
     encAesMsg = readFromClientAES();
     Serial.print("Encrypted message:  ");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Receiving:");
     fromStringToIntarray(encAesMsg,AES_TEMP_HOLD);
     intArrayToString(AES_TEMP_HOLD);
   
@@ -76,11 +91,32 @@ void loop(){
       Serial.print(" ");
     }
     Serial.println();
-    intArrayToString(AES_TEMP_HOLD); // This is print the decrypted input as string
+    
+    String temperature = intArrayToString(AES_TEMP_HOLD);
+    
+    if (firsttime){
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Receiving:");
+      lcd.setCursor(0, 1);
+      lcd.print(temperature);
+    } else {
+      lcd.setCursor(0, 1);
+      lcd.print(temperature);
+    }
+    firsttime = false;
+    
+     // This is print the decrypted input as string
     Serial.println();
-  
+    
     Clear_Buffers(AES_packet_buffer, MAX_AES_BUFFER_SIZE);
-  } 
+    
+  }
+  else{
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("No WiFi Con");
+  }
 }
 
 
@@ -158,17 +194,7 @@ BigNumber castToBignumber(String msg){
   return temp;
 }
 
-void fromBignumberToIntarray(BigNumber src, int *dst){
-  String tempKeyHolder = src.toString();
-  String HoldRes;
-  for (int i = 0; i < 16; i++){
-    HoldRes = "";
-    HoldRes += tempKeyHolder[(i*2)];
-    HoldRes += tempKeyHolder[((i*2)+1)];
-    
-    dst[i] = HoldRes.toInt();
-  }
-}
+
 
 void fromStringToIntarray(String src, int *dst){
   char HoldRes;
@@ -200,48 +226,52 @@ void CompleteKeySetup(){
 
   // Receiving encrypted AES key.
   String encKey = readFromClient();
-  BigNumber Encrypted_AES_key = castToBignumber(encKey);
-  BigNumber Decrypted_AES_key = Decrypt(Encrypted_AES_key, publickey, privatekey);
-
+  delay(5000);
   
-  // Aes key as integer array
-  AES_KEY_RECEIVED[16] = {0};
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Decrypting");
+  lcd.setCursor(0, 1);
+  lcd.print("AES KEY");
+  
+  delay(1000);
+  BigNumber Encrypted_AES_key = castToBignumber(encKey);
+  delay(1000);
+  
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("xxxxxxxxxxxxx");
+    
+  delay(1000);
+  BigNumber Decrypted_AES_key = Decrypt(Encrypted_AES_key, publickey, privatekey);
+  
   fromBignumberToIntarray(Decrypted_AES_key, AES_KEY_RECEIVED);
+  
   Serial.println("Received the following decrypted AES key:");
   for(int i = 0; i < 16; i++){
     Serial.println(AES_KEY_RECEIVED[i]);
   }
-  
+
 
   // Send AES ACK
   Serial.println("Sending: AES ACK");
   
   udp.beginPacket(ClientIP,UDPPort);
-  udp.printf("Aes Ack");
+  udp.printf("AES Ack");
   udp.endPacket();
 
   Serial.println();
 }
 
-
-void intArrayToString(int *src){
+String intArrayToString(int *src){
   String printer;
   for (int i = 0; i < 16; i++){
-    if (isAlpha((char) src[i])){
-      printer += (char) src[i];
-    } else {
-      if (src[i] == 0)
-        continue;
-
-      if (i > 0){
-        if (isAlpha(printer[(printer.length()-1)])){
-          if (!(isAlpha((char)src[i]))){
-            printer += ": ";
-          }
+    if (!(src[i] == 0)){
+        printer += src[i];
+        Serial.print(src[i]);    
         }
-      }  
-      printer += src[i];    
     }
-  }
+  Serial.println();
   Serial.println(printer);
+  return printer;
 }
