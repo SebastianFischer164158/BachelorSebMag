@@ -35,9 +35,11 @@ uint8_t temprature_sens_read();
 //UDP address we wish to send to, in this case the server. 
 const char * udpAddress = "192.168.4.1";
 const int udpPort = 2000;
+int internal_temp = 2;
 
 //connection status:
 boolean connected = false;
+boolean firsttime = true;
 
 //Prototype declarations
 String readFromClient(void);
@@ -119,7 +121,7 @@ void loop(){
   
   // Convert internal CPU core temp (F) to C
   //int internal_temp = (temprature_sens_read() - 32) / 1.8;
-  int internal_temp = random(0,100);
+  internal_temp = random(1,3);
   Serial.print("THIS IS THE TEMPERATURE: ");
   Serial.print(internal_temp);  
   Serial.println();
@@ -136,21 +138,26 @@ void loop(){
   
   udp.beginPacket(udpAddress,udpPort);
   for(int j = 0; j<16; j++){
-  udp.write(txt_to_encrypt[j]);
+    udp.write(txt_to_encrypt[j]);
   }
   udp.endPacket();
   udp.flush();
 
-  delay(1000);
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Sending:");
-  lcd.setCursor(0, 1);
-  lcd.print(internal_temp);
+  if (firsttime){
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Sending:");
+      lcd.setCursor(0, 1);
+      lcd.print(internal_temp);
+    } else {
+      lcd.setCursor(0, 1);
+      lcd.print(internal_temp);
+    }
+    firsttime = false;
   
-  //delay(5000);
+  
   delay(1000); //for wireshark traces
-
+  //internal_temp += 1;
 }
 
 
