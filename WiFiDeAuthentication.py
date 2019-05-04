@@ -12,11 +12,11 @@ import threading
 
 iface = "wlan0mon"
 timeout = 1
-#dest = "94:65:2D:D8:2E:16"
-#bssid = "40:F2:01:9A:42:56"
+
 
 resetflag = False
-packetcount = 1
+global packetcount
+packetcount = 0
 
 def setMonitorMode():
 	checkphrase_mon_success = "monitor mode vif enabled"
@@ -94,8 +94,9 @@ def perform_deauth_attack(interface,dest,bssid,amount):
 
 
 
-setMonitorMode()
-#perform_deauth_attack(iface,dest,bssid,1)
+#setMonitorMode()
+
+
 class App(QMainWindow):
 	def __init__(self):
 		super().__init__()
@@ -130,6 +131,11 @@ class App(QMainWindow):
 		self.resetbutton.resize(200,50)
 		self.resetbutton.move(350,100)
 		self.resetbutton.clicked.connect(self.on_resetclick)
+
+		self.packetlabel = QLabel("Sent : "+str(packetcount)+"\n"+"DeAuthentication Packets",self)
+		self.packetlabel.setFont(QtGui.QFont("Times",weight=QtGui.QFont.Bold))
+		self.packetlabel.move(20,120)
+		self.packetlabel.resize(270,100)
 
 
 		self.show()
@@ -177,6 +183,13 @@ class App(QMainWindow):
 		self.textboxAP.setPlaceholderText("Enter the target AP MAC address")
 		self.textbox.setPlaceholderText("Enter the target MAC address")
 		resetflag = True
+
+		for i in range(0,9):
+			packetcount +=1
+			self.packetlabel.setText("Sent : "+str(packetcount)+"\n"+"DeAuthentication Packets")
+			self.packetlabel.repaint()
+			time.sleep(1)
+			print(packetcount)
 		packetcount = 0
 
 
