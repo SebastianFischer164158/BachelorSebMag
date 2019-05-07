@@ -1,10 +1,7 @@
-import sys
-from PyQt5.QtWidgets import QMainWindow, QApplication,QPushButton,QLineEdit, QTextEdit, QLabel
+from PyQt5.QtWidgets import QMainWindow, QApplication,QPushButton,QLineEdit, QLabel
 from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSlot
-import time
 from scapy.all import *
-from subprocess import call
 from subprocess import check_output
 import re
 import threading
@@ -18,6 +15,10 @@ resetflag = False
 packetcount = 0
 
 def setMonitorMode():
+	"""
+
+	:return:
+	"""
 	checkphrase_mon_success = "monitor mode vif enabled"
 	checkphrase_mon = "Mode:Monitor"
 
@@ -92,10 +93,6 @@ def perform_deauth_attack(interface,dest,bssid,amount):
 	#print(endTOTAL - startTOTAL)  # takes about 40 seconds to send 1000 deuath packets in a for loop.
 
 
-
-
-
-
 class App(QMainWindow):
 	def __init__(self):
 		super().__init__()
@@ -143,6 +140,8 @@ class App(QMainWindow):
 		self.packetlabel.setFont(QtGui.QFont("Times",weight=QtGui.QFont.Bold))
 		self.packetlabel.move(20,170)
 		self.packetlabel.resize(270,100)
+		
+		#evt. lav QTextEdit?
 
 
 		self.show()
@@ -157,8 +156,8 @@ class App(QMainWindow):
 		self.textboxAP.setEnabled(False)
 		self.textbox.setEnabled(False)
 		self.textbox_amount.setEnabled(False)
-		self.textboxAP.setText("40:F2:01:9A:42:56")#test remove me
-		self.textbox.setText("94:65:2D:D8:2E:16") #test remove me
+		#self.textboxAP.setText("40:F2:01:9A:42:56")#test remove me
+		#self.textbox.setText("94:65:2D:D8:2E:16") #test remove me
 
 		bssid_targetMAC = self.textboxAP.text() #string
 		destMAC = self.textbox.text() #string
@@ -211,8 +210,6 @@ class App(QMainWindow):
 		packetcount = 0
 		self.packetlabel.setText("Sent : " + str(packetcount) + "\n" + "DeAuthentication Packets")
 		self.packetlabel.repaint()
-
-
 
 
 if __name__ == '__main__':
