@@ -4,13 +4,19 @@ from subprocess import check_output
 from scapy.all import *
 import random
 
-
+channel_value = 1
 ssid_bssid = []
 STA_list = []
 channel_enganged = False
 def setChannel():
-    channel = random.randint(1,14)
-    moncheck = check_output(["sudo","iwconfig","wlan0mon","channel",str(channel)], stderr=subprocess.PIPE).decode("UTF-8")  # stderr=subprocess.PIPE simply "silences" the output.
+    global channel_value
+    #channel_value = random.randint(1,14)
+    if channel_value == 13:
+        channel_value = 1
+    else:
+        channel_value +=1
+
+    moncheck = check_output(["sudo","iwconfig","wlan0mon","channel",str(channel_value)], stderr=subprocess.PIPE).decode("UTF-8")  # stderr=subprocess.PIPE simply "silences" the output.
 
 
 def FindSSIDtest(frame):
@@ -86,4 +92,3 @@ sniff(iface="wlan0mon", count=0, prn=FindSSIDtest, store=0) #finds SSIDS
 #sniff(iface="wlan0mon", count=0,prn= lambda fr: FindSTAinSpecificBSSID(iwantit,fr,4),store=0) ## kan gøres uden lambda funktion, men tja. så kald checkframe uden parentser, elle argument.
 
 #sniff(iface="wlan0mon", monitor=True, prn=lambda x:x.sprintf("{Dot11Beacon:%Dot11.addr3%\t%Dot11Beacon.info%\t%PrismHeader.channel%\t%Dot11Beacon.cap%}"))
-
