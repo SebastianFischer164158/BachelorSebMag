@@ -148,6 +148,7 @@ def perform_deauth_attack(interface,dest,bssid,amount,channel_attack):
 	#endTOTAL = time.time()
 	#print(endTOTAL - startTOTAL)  # takes about 40 seconds to send 1000 deuath frames in a for loop.
 
+
 def snifferfunction():
 	sniff(iface="wlan0mon", count=0, prn=FindSSIDtest, store=0,stop_filter=checkifstop)
 
@@ -206,6 +207,7 @@ class App(QMainWindow):
 		self.sniffSSIDbutton.clicked.connect(self.on_ssidsniff)
 
 
+
 		#frame AMOUNT LABEL
 		self.framelabel = QLabel("Sent : "+str(framecount)+"\n"+"DeAuthentication frames",self)
 		self.framelabel.setFont(QtGui.QFont("Times",weight=QtGui.QFont.Bold))
@@ -217,25 +219,15 @@ class App(QMainWindow):
 		self.sniffbox.setText('Your output will be shown here')
 		self.sniffbox.move(20,350)
 		self.sniffbox.resize(600,300)
-
 		##
 
 
 
 		self.show()
-	def sniffevent(self):
-		self.sniffbox.repaint()
-		if breaksniff_flag == False:
-			if len(ssid_bssid)>0:
-				for tuple in ssid_bssid:
-					if tuple[0] in self.sniffbox.toPlainText():
-						continue
-					else:
-						self.sniffbox.append(tuple[0] + " " +tuple[1])
-				#self.sniffbox.append(ssid_bssid)
-				#self.sniffbox.setText(ssid_bssid[0][0])
-				self.sniffbox.repaint()
-		self.sniffbox.repaint()
+
+
+
+
 
 
 	@pyqtSlot()
@@ -245,25 +237,17 @@ class App(QMainWindow):
 		print("started sniff")
 		print("please work")
 		#self.sniffbox.setText(ssid_bssid[0])
+
+		printhey(self)
+		sniffupdate = threading.Thread(target = sniffevent, args = ([self]))
+		sniffupdate.start()
+
 		sniffingthread = threading.Thread(target = snifferfunction)
 
 		sniffingthread.start()
-		# kan ikke lave check med is_alive her, da det vil bugge programmet op.
-		"""
-		self.sniffbox.repaint()
-		if breaksniff_flag == False:
-			if len(ssid_bssid)>0:
-				for tuple in ssid_bssid:
-					if tuple[0] in self.sniffbox.toPlainText():
-						continue
-					else:
-						self.sniffbox.append(tuple[0] + " " +tuple[1])
-				#self.sniffbox.append(ssid_bssid)
-				#self.sniffbox.setText(ssid_bssid[0][0])
-				self.sniffbox.repaint()
-		self.sniffbox.repaint()
-		"""
 
+
+		# kan ikke lave check med is_alive her, da det vil bugge programmet op.
 
 
 		#print("thread dead")
@@ -347,6 +331,23 @@ class App(QMainWindow):
 		self.framelabel.repaint()
 
 		#self.sniffbox.setText(ssid_bssid[0])
+
+
+
+def sniffevent(self):
+	self.sniffbox.append("HELLOOOO")
+	#self.sniffbox.repaint()
+	if breaksniff_flag == False:
+		if len(ssid_bssid)>0:
+			for tuple in ssid_bssid:
+				if tuple[0] in self.sniffbox.toPlainText():
+					continue
+				else:
+					self.sniffbox.append(tuple[0] + " " +tuple[1])
+			#self.sniffbox.append(ssid_bssid)
+			#self.sniffbox.setText(ssid_bssid[0][0])
+			self.sniffbox.repaint()
+	self.sniffbox.repaint()
 
 
 if __name__ == '__main__':
