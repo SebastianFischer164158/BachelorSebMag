@@ -32,39 +32,44 @@ BigNumber modInv(BigNumber MI_One, BigNumber MI_Two)
 }
 
 void setup() {
-  Serial.begin (9600);
-  BigNumber::begin ();
+  Serial.begin(9600);
+  BigNumber::begin();
   
-  BigNumber p = "9932139943339554751655031442828579353277196020045387852012083330216751";
-  BigNumber q = "7104411554778760027250011387254928276716637756917863968861551676876553";
+  BigNumber p = "";
+  BigNumber q = "";
 
-  unsigned long start = millis();
-  BigNumber n = p*q; //RSA 1024
+  unsigned long start_generation = millis();
+  BigNumber n = p*q;  // public key
   BigNumber e = "307";
   BigNumber phi = (p-"1")*(q-"1");
-  BigNumber d = modInv(e,phi);
-  unsigned long endx = millis();
-  unsigned long elapsed = endx -start;
+  BigNumber d = modInv(e,phi); // private key
+  unsigned long end_generation = millis();
+  unsigned long elapsed_generation = end_generation - start_generation;
   delay(100);
-  Serial.print("Milisecond elapsed Keygen: ");Serial.println(elapsed);
+  Serial.print("Milisecond elapsed Keygen: ");
+  Serial.println(elapsed_generation);
   
-  BigNumber m = "84726584832077892075797871207085"; 
+  BigNumber m = "84726584833277893275857871327085";
+  //THATS MY KUNG FU
+  //84 72 65 84 83 32 77 89 32 75 85 78 71 32 70 85      (this is in decimal bytes) 
+  //https://www.rapidtables.com/convert/number/ascii-hex-bin-dec-converter.html
   
-  start = millis();
-  BigNumber me = m.powMod (e,n); //test which method is fastest.
-  endx = millis();
-  elapsed = endx - start;
+  start_encrypt = millis();
+  BigNumber me = m.powMod(e,n); //encryption is done on the whole message. 
+  end_encrypt = millis();
+  elapsed_encrypt = end_encrypt - start_encrypt;
   delay(100);
-  Serial.print("Milisecond elapsed Encryption: ");Serial.println(elapsed);
+  Serial.print("Milisecond elapsed Encryption: ");
+  Serial.println(elapsed_encrypt);
 
 
-  start = millis();
-  ESP.wdtDisable(); // Thise disable WatchDogTimer, makes the arduino able to calculate large integers. Det virker i hvert fald
+  start_decrypt = millis();
   BigNumber cd = me.powMod(d,n);
-  endx = millis();
-  elapsed = endx -start;
+  end_decrypt = millis();
+  elapsed_decrypt = end_decrypt - start_decrypt;
   delay(100);
-  Serial.print("Milisecond elapsed Decryption: ");Serial.println(elapsed);
+  Serial.print("Milisecond elapsed Decryption: ");
+  Serial.println(elapsed_decrypt);
   Serial.println(cd);
 }
 
