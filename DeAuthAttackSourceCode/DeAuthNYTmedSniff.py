@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 from PyQt5.QtWidgets import QMainWindow, QApplication,QPushButton,QLineEdit, QLabel, QTextBrowser
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import pyqtSlot
 from scapy.all import *
 from subprocess import check_output
@@ -22,41 +22,42 @@ breaksniff_flag = False
 
 
 
+
 def checkifstop(frame):
-    if breaksniff_flag == True:
-        return "breaking"
+	if breaksniff_flag == True:
+		return "breaking"
 
 def setChannel():
-    global channel_value
-    #channel_value = random.randint(1,14)
-    if channel_value == 13:
-        channel_value = 1
-    else:
-        channel_value +=1
+	global channel_value
+	#channel_value = random.randint(1,14)
+	if channel_value == 13:
+		channel_value = 1
+	else:
+		channel_value +=1
 	#den her måde at skifte channel på går højst sandsynligt ALT ALT for hurtigt for resten af systemet, til at tjekke BSSIDs, osv. men den fanger faktisk de fleste.
-    moncheck = check_output(["sudo","iwconfig","wlan0mon","channel",str(channel_value)], stderr=subprocess.PIPE).decode("UTF-8")  # stderr=subprocess.PIPE simply "silences" the output.
+	moncheck = check_output(["sudo","iwconfig","wlan0mon","channel",str(channel_value)], stderr=subprocess.PIPE).decode("UTF-8")  # stderr=subprocess.PIPE simply "silences" the output.
 
 
 def FindSSIDtest(frame):
-    global breaksniff_flag
+	global breaksniff_flag
 
-    setChannel() #we try a random channel every call. nok ikke specielt efficient.
-    if frame.haslayer(Dot11): #der kunne bare stå haslayer(Dot11Beacon)
-        if frame.type == 0 and frame.subtype == 8: #KUN beacon frames!!
-            SSID = frame.info
-            BSSID = frame.addr3.upper()
-            #print(bssid)
-            if (BSSID,SSID) not in ssid_bssid and len(SSID) != 0: #gider ikke hidden SSIDs aka 0 len.
-                ssid_bssid.append((BSSID,SSID))
-                ch = int(ord(frame[Dot11Elt:3].info))
+	setChannel() #we try a random channel every call. nok ikke specielt efficient.
+	if frame.haslayer(Dot11): #der kunne bare stå haslayer(Dot11Beacon)
+		if frame.type == 0 and frame.subtype == 8: #KUN beacon frames!!
+			SSID = frame.info
+			BSSID = frame.addr3.upper()
+			#print(bssid)
+			if (BSSID,SSID) not in ssid_bssid and len(SSID) != 0: #gider ikke hidden SSIDs aka 0 len.
+				ssid_bssid.append((BSSID,SSID))
+				ch = int(ord(frame[Dot11Elt:3].info))
 
-                print("Found BSSID " + BSSID + " and SSID "+SSID +" on channel: " +str(ch))#addr 3 er bssid (mac addresse for ap) , frame.info er SSID
+				print("Found BSSID " + BSSID + " and SSID "+SSID +" on channel: " +str(ch))#addr 3 er bssid (mac addresse for ap) , frame.info er SSID
 
-                #print(ssid_bssid)
+				#print(ssid_bssid)
 
-                #if time.time() > 10:
-                    #print(time.time())
-                    #breaksniff_flag = True
+				#if time.time() > 10:
+					#print(time.time())
+					#breaksniff_flag = True
 
 def setMonitorMode():
 	"""
@@ -152,11 +153,23 @@ def perform_deauth_attack(interface,dest,bssid,amount,channel_attack):
 def snifferfunction():
 	sniff(iface="wlan0mon", count=0, prn=FindSSIDtest, store=0,stop_filter=checkifstop)
 
+def sniffevent(self):
+	self.sniffbox.append("ehllo")
+	if breaksniff_flag == False:
+		if len(ssid_bssid)>0:
+			for item in ssid_bssid:
+				if item[0] not in self.sniffbox.toPlainText():
+					self.sniffbox.append(item[0] + " " + item[1])
+
+			self.sniffbox.repaint()
+
 class App(QMainWindow):
 	def __init__(self):
 		super(App,self).__init__()
 		self.title = "DeAuthentication Attack"
 		self.setupUI()
+
+
 
 	def setupUI(self):
 		global framecount
@@ -200,6 +213,7 @@ class App(QMainWindow):
 		self.resetbutton.move(350,100)
 		self.resetbutton.clicked.connect(self.on_resetclick)
 
+
 		##SNIFF BUTTON
 		self.sniffSSIDbutton = QPushButton('Sniff SSIDs',self)
 		self.sniffSSIDbutton.resize(200,50)
@@ -237,21 +251,17 @@ class App(QMainWindow):
 		print("started sniff")
 		print("please work")
 		#self.sniffbox.setText(ssid_bssid[0])
-
-		printhey(self)
-		sniffupdate = threading.Thread(target = sniffevent, args = ([self]))
-		sniffupdate.start()
-
 		sniffingthread = threading.Thread(target = snifferfunction)
 
 		sniffingthread.start()
 
+		#sniffupdate = threading.Thread(target = self.sniffevent)
+		#sniffupdate.start()
 
 		# kan ikke lave check med is_alive her, da det vil bugge programmet op.
 
 
 		#print("thread dead")
-
 
 
 
@@ -334,20 +344,7 @@ class App(QMainWindow):
 
 
 
-def sniffevent(self):
-	self.sniffbox.append("HELLOOOO")
-	#self.sniffbox.repaint()
-	if breaksniff_flag == False:
-		if len(ssid_bssid)>0:
-			for tuple in ssid_bssid:
-				if tuple[0] in self.sniffbox.toPlainText():
-					continue
-				else:
-					self.sniffbox.append(tuple[0] + " " +tuple[1])
-			#self.sniffbox.append(ssid_bssid)
-			#self.sniffbox.setText(ssid_bssid[0][0])
-			self.sniffbox.repaint()
-	self.sniffbox.repaint()
+
 
 
 if __name__ == '__main__':
