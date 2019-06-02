@@ -8,15 +8,24 @@
 }
 #endif
 
+#include <WiFi.h>
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 #include "RSA.h"
 #include "AES.h"
-#include "WiFi.h"
+#include "DHT.h"
 #include "WiFiUdp.h"
 //The udp library class
 WiFiUDP udp;
 #define MAX_BUFFER_SIZE 350
+
+#define DHTTYPE DHT22   // DHT 22  (AM2302)
+// DHT Sensor
+uint8_t DHTPin = 4;
+DHT dht(DHTPin, DHTTYPE);
+float Temp;
+float Hum;
+
 char standard_packet_buffer[MAX_BUFFER_SIZE]; //Buffer for the UDP packets 
 
 // LCD Display
@@ -61,7 +70,9 @@ void setup(){
   lcd.backlight();
   lcd.setCursor(0, 0);
   lcd.print("Booting System");
-  
+
+  pinMode(DHTPin, INPUT);
+  dht.begin();
   BigNumber::begin (); //Calling BigNumber library with c++ 
   BigNumber RSA_KEY_ENCRYPTED[16];
  
@@ -121,9 +132,11 @@ void loop(){
   
   // Convert internal CPU core temp (F) to C
   //int internal_temp = (temprature_sens_read() - 32) / 1.8;
-  internal_temp = random(1,3);
+  
+  //internal_temp = random(1,3);
+  Temp = dht.readTemperature();
   Serial.print("THIS IS THE TEMPERATURE: ");
-  Serial.print(internal_temp);  
+  Serial.print(Temp);  
   Serial.println();
   char *test = "TEMPERATURE";
   int txt_to_encrypt[16] = {0};
@@ -133,7 +146,7 @@ void loop(){
       txt_to_encrypt[z] = (int) test[z];
     }
   */ 
-  txt_to_encrypt[15] = internal_temp;
+  txt_to_encrypt[15] = Temp;
   encryption(txt_to_encrypt,AES_KEY);
   
   udp.beginPacket(udpAddress,udpPort);
@@ -148,10 +161,10 @@ void loop(){
       lcd.setCursor(0, 0);
       lcd.print("Sending:");
       lcd.setCursor(0, 1);
-      lcd.print(internal_temp);
+      lcd.print(Temp);
     } else {
       lcd.setCursor(0, 1);
-      lcd.print(internal_temp);
+      lcd.print(Temp);
     }
     firsttime = false;
   
@@ -208,7 +221,7 @@ void WiFiEvent(WiFiEvent_t event){
           udp.begin(WiFi.localIP(),udpPort);
           connected = true;
           break;
-      case SYSTEM_EVENT_STA_DISCONNECTED:
+      case SYSTEM_EVENT_STA_DISCONNECTED://station dc'ed from AP
           Serial.println("WiFi lost connection");
           connected = false;
           break;
