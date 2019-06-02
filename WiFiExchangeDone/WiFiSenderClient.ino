@@ -27,7 +27,7 @@ const char * networkName = "ESP32SOFTAP";
 const char * networkPswd = "testpassword";
 BigNumber RsaKey = 0;
 
-//"THATS MY KONG FU"
+//"THATS MY KUNG FU"
 //translated to hexadecimal as our key. 
 //84 72 65 84 83 32 77 89 32 75 85 78 71 32 70 85
 int AES_KEY[16] = {0x54, 0x48, 0x41, 0x54, 0x53, 0x20, 0x4d, 0x59, 0x20, 0x4b, 0x55, 0x4e, 0x47, 0x20, 0x46, 0x55};
