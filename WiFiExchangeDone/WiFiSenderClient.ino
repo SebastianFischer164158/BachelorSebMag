@@ -63,27 +63,27 @@ void CompleteKeySetup(void);
 ////////// SETUP //////////
 
 void setup(){
-  //Initialize serial
-  Serial.begin(115200);
+    //Initialize serial
+    Serial.begin(115200);
+    
+    lcd.begin();
+    lcd.backlight();
+    lcd.setCursor(0, 0);
+    lcd.print("Booting System");
   
-  lcd.begin();
-  lcd.backlight();
-  lcd.setCursor(0, 0);
-  lcd.print("Booting System");
-
-  pinMode(DHTPin, INPUT);
-  dht.begin();
-  BigNumber::begin (); //Calling BigNumber library with c++ 
-  BigNumber RSA_KEY_ENCRYPTED[16];
- 
-  // Connect to the WiFi network
-  connectToWiFi(networkName, networkPswd);
-  delay(1000);
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Connected to WIFI.");
-
-  // After WiFi connection established, do the key setup.
+    pinMode(DHTPin, INPUT);
+    dht.begin();
+    BigNumber::begin (); //Calling BigNumber library with c++ 
+    BigNumber RSA_KEY_ENCRYPTED[16];
+   
+    // Connect to the WiFi network
+    connectToWiFi(networkName, networkPswd);
+    delay(1000);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Connected to WIFI.");
+  
+    // After WiFi connection established, do the key setup.
 
     CompleteKeySetup();
 
@@ -129,49 +129,47 @@ void setup(){
 ////////// MAIN LOOP //////////
 
 void loop(){
-  
-  // Convert internal CPU core temp (F) to C
-  //int internal_temp = (temprature_sens_read() - 32) / 1.8;
-  
-  //internal_temp = random(1,3);
-  Temp = dht.readTemperature();
-  Serial.print("THIS IS THE TEMPERATURE: ");
-  Serial.print(Temp);  
-  Serial.println();
-  char *test = "TEMPERATURE";
-  int txt_to_encrypt[16] = {0};
-  int txt_len = strlen(test);
-  /*
-  for(int z = 0; z<txt_len;z++){
-      txt_to_encrypt[z] = (int) test[z];
-    }
-  */ 
-  txt_to_encrypt[15] = Temp;
-  encryption(txt_to_encrypt,AES_KEY);
-  
-  udp.beginPacket(udpAddress,udpPort);
-  for(int j = 0; j<16; j++){
-    udp.write(txt_to_encrypt[j]);
+  if (connected){
+      
+      // Convert internal CPU core temp (F) to C
+      //int internal_temp = (temprature_sens_read() - 32) / 1.8;
+      
+      //internal_temp = random(1,3);
+      Temp = dht.readTemperature();
+      Serial.print("Sending temperature: ");
+      Serial.print(Temp);  
+      Serial.println();
+      char *test = "TEMPERATURE";
+      int txt_to_encrypt[16] = {0};
+      int txt_len = strlen(test);
+      
+      txt_to_encrypt[15] = Temp;
+      AES_encryption(txt_to_encrypt,AES_KEY);
+      
+      udp.beginPacket(udpAddress,udpPort);
+      for(int j = 0; j<16; j++){
+        udp.write(txt_to_encrypt[j]);
+      }
+      udp.endPacket();
+    
+      if (firsttime){
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("Sending:");
+          lcd.setCursor(0, 1);
+          lcd.print(Temp);
+        } else {
+          lcd.setCursor(0, 1);
+          lcd.print(Temp);
+        }
+       firsttime = false;
+      
+      
+      delay(1000); //for wireshark traces
+      //internal_temp += 1;
   }
-  udp.endPacket();
-  udp.flush();
-
-  if (firsttime){
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Sending:");
-      lcd.setCursor(0, 1);
-      lcd.print(Temp);
-    } else {
-      lcd.setCursor(0, 1);
-      lcd.print(Temp);
-    }
-    firsttime = false;
-  
-  
-  delay(1000); //for wireshark traces
-  //internal_temp += 1;
 }
+
 
 
 ////////// FUNCTIONS //////////
@@ -191,6 +189,7 @@ String readFromClient(){
 }
 
 void connectToWiFi(const char * ssid, const char * pwd){
+  Serial.println();
   Serial.println("Connecting to WiFi network: " + String(ssid));
 
   // delete old config
@@ -203,7 +202,7 @@ void connectToWiFi(const char * ssid, const char * pwd){
   //WiFi.begin(ssid, pwd);
   //open network (no password)
   WiFi.begin(ssid);
-
+  Serial.println();
   Serial.println("Waiting for WIFI connection...");
   Serial.print("The MAC Address of ESP Client: ");
   Serial.println(WiFi.macAddress());
@@ -214,6 +213,7 @@ void WiFiEvent(WiFiEvent_t event){
     switch(event) {
       case SYSTEM_EVENT_STA_GOT_IP:
           //When connected set 
+          Serial.println();
           Serial.print("WiFi connected! IP address: ");
           Serial.println(WiFi.localIP());  
           //initializes the UDP state
@@ -222,6 +222,7 @@ void WiFiEvent(WiFiEvent_t event){
           connected = true;
           break;
       case SYSTEM_EVENT_STA_DISCONNECTED://station dc'ed from AP
+          Serial.println();
           Serial.println("WiFi lost connection");
           connected = false;
           break;
@@ -264,11 +265,14 @@ void CompleteKeySetup(){
   
   String RsaKeyString = readFromClient();
   RsaKey = castToBignumber(RsaKeyString);
+  Serial.println();
+  Serial.println("Receiving RSA Key: ");
   Serial.println(RsaKey);
+  Serial.println();
 
   // TODO Check om vi kan slette dette
-  udp.beginPacket(udpAddress,udpPort); //for whatever reason we need to begin an empty packet and end it??? why?
-  udp.endPacket();
+  //udp.beginPacket(udpAddress,udpPort); //for whatever reason we need to begin an empty packet and end it??? why?
+  //udp.endPacket();
   
   //Wait for 0.01 second
   delay(10);
@@ -278,14 +282,14 @@ void CompleteKeySetup(){
   delay(1000);
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Sending RSA Ack");
+  lcd.print("Sending RSA ACK");
   
   //STEP 2 ENCRYPT AES KEY WITH RSA PUBLIC KEY//
   char holdkey[33];
   hexToCharArray(holdkey);
 
   BigNumber AES_CONVERTED_KEY_CHAR = holdkey; //key is now converted from int array to char array and then varible set as bignumber
-  BigNumber AES_ENC = Encrypt(AES_CONVERTED_KEY_CHAR,RsaKey);
+  BigNumber AES_ENC = RSA_encryption(AES_CONVERTED_KEY_CHAR,RsaKey);
 
   delay(1000);
   lcd.clear();
@@ -298,22 +302,20 @@ void CompleteKeySetup(){
   udp.print(AES_ENC);
   udp.endPacket();
   
-  Serial.println("SENT ENCRYPTED AES KEY TO RECEIVER");
-  Serial.println("AWAITING ACK FROM RECEIVER");
-  Serial.println();
+  Serial.println("Sending: Encrypted AES Key");
 
   clearBuffer();
 
   delay(1000);
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Foe decrypting");
-  lcd.setCursor(0, 1);
-  lcd.print("Waiting for ack");
-  
-  Serial.print("I RECEIVED : "); 
+  lcd.print("Waiting for ACK");
+
+  Serial.println();
+  Serial.print("Received: "); 
   String ACK = readFromClient();
   Serial.println(ACK);
+  Serial.println();
 
   delay(1000);
   lcd.clear();
