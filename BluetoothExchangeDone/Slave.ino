@@ -17,7 +17,7 @@ BigNumber castToBignumber(String);
 
 
 // Serial declerations
-SoftwareSerial BTSerial(D6, D7); // RX | TX
+SoftwareSerial BTSerial(D6, D7); // TX | RX
 
 
 // Variable decleration
@@ -81,7 +81,7 @@ void loop(){
     
     hexToCharAESArray(holdkey);
     BigNumber AES_CONVERTED_KEY_CHAR = holdkey; //key is now converted from int array to char array and then varible set as bignumber
-    BigNumber AES_ENC = Encrypt(AES_CONVERTED_KEY_CHAR,RSAPublicKey);
+    BigNumber AES_ENC = RSA_encryption(AES_CONVERTED_KEY_CHAR,RSAPublicKey);
 
     // Sending encrypted AES Key
     sendBigNumber(AES_ENC);
@@ -117,7 +117,7 @@ void loop(){
     printIntArray("Text to be send: ",txt_to_encrypt,16);
 
     // Call the encryption methoed. 
-    encryption(txt_to_encrypt,AES_KEY);
+    AES_encryption(txt_to_encrypt,AES_KEY);
 
     // Print encrypted message - Integer values
     sendIntArray(txt_to_encrypt, 16);
