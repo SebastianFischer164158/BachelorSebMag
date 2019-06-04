@@ -430,7 +430,7 @@ void ShiftRows(int *state){
   copyArray(tmp,state,16);
 }
 
-void encryption(int* text, int* key){
+void AES_encryption(int* text, int* key){
 
     int currentRoundKey[16] = {0};
 
@@ -454,7 +454,7 @@ void encryption(int* text, int* key){
     AddRoundKey(text,currentRoundKey);
 }
 
-void decryption(int* text, int* key){
+void AES_decryption(int* text, int* key){
     int currentRoundKey[16] = {0};
 
     // Round 0
