@@ -94,7 +94,7 @@ void loop(){
     Serial.print("Received encrypted AES_KEY: ");
     Serial.println(myString);
     BigNumber ENC_AESKey = castToBignumber(myString);
-    AesKey = Decrypt(ENC_AESKey, publickey, privatekey);
+    AesKey = RSA_decryption(ENC_AESKey, publickey, privatekey);
     fromBignumberToIntarray(AesKey,AES_key);
     Serial.print("Decrypted AES_Key: ");
     Serial.println(AesKey);
@@ -127,7 +127,7 @@ void loop(){
     printIntArray("Encrypted message: ",holderAes,16);
 
     // Print decrypted message
-    decryption(holderAes, AES_key);
+    AES_decryption(holderAes, AES_key);
     printIntArray("Decrypted message: ",holderAes,16);
 
     // Print decrypted message ascii
