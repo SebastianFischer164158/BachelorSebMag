@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
+
 
 int mul2[] =
 {
@@ -22,8 +24,8 @@ int mul2[] =
     0xfb,0xf9,0xff,0xfd,0xf3,0xf1,0xf7,0xf5,0xeb,0xe9,0xef,0xed,0xe3,0xe1,0xe7,0xe5
 };
 
-int mul3[] = 
-{ 
+int mul3[] =
+{
     0x00,0x03,0x06,0x05,0x0c,0x0f,0x0a,0x09,0x18,0x1b,0x1e,0x1d,0x14,0x17,0x12,0x11,
     0x30,0x33,0x36,0x35,0x3c,0x3f,0x3a,0x39,0x28,0x2b,0x2e,0x2d,0x24,0x27,0x22,0x21,
     0x60,0x63,0x66,0x65,0x6c,0x6f,0x6a,0x69,0x78,0x7b,0x7e,0x7d,0x74,0x77,0x72,0x71,
@@ -61,7 +63,7 @@ int mul9[] = {
     0x31,0x38,0x23,0x2a,0x15,0x1c,0x07,0x0e,0x79,0x70,0x6b,0x62,0x5d,0x54,0x4f,0x46
 };
 
-int mul11[] = 
+int mul11[] =
 {
     0x00,0x0b,0x16,0x1d,0x2c,0x27,0x3a,0x31,0x58,0x53,0x4e,0x45,0x74,0x7f,0x62,0x69,
     0xb0,0xbb,0xa6,0xad,0x9c,0x97,0x8a,0x81,0xe8,0xe3,0xfe,0xf5,0xc4,0xcf,0xd2,0xd9,
@@ -81,7 +83,7 @@ int mul11[] =
     0xca,0xc1,0xdc,0xd7,0xe6,0xed,0xf0,0xfb,0x92,0x99,0x84,0x8f,0xbe,0xb5,0xa8,0xa3
 };
 
-int mul13[] = 
+int mul13[] =
 {
     0x00,0x0d,0x1a,0x17,0x34,0x39,0x2e,0x23,0x68,0x65,0x72,0x7f,0x5c,0x51,0x46,0x4b,
     0xd0,0xdd,0xca,0xc7,0xe4,0xe9,0xfe,0xf3,0xb8,0xb5,0xa2,0xaf,0x8c,0x81,0x96,0x9b,
@@ -101,7 +103,7 @@ int mul13[] =
     0xdc,0xd1,0xc6,0xcb,0xe8,0xe5,0xf2,0xff,0xb4,0xb9,0xae,0xa3,0x80,0x8d,0x9a,0x97
 };
 
-int mul14[] = 
+int mul14[] =
 {
     0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a,0x70,0x7e,0x6c,0x62,0x48,0x46,0x54,0x5a,
     0xe0,0xee,0xfc,0xf2,0xd8,0xd6,0xc4,0xca,0x90,0x9e,0x8c,0x82,0xa8,0xa6,0xb4,0xba,
@@ -158,13 +160,21 @@ int InvSbox [256] = {
     0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d };
 
 void printArrayHex(int array[], int arraySize){
-	for (int i = 0; i < arraySize; i++){
-		printf("%02x ", array[i]);
-	}
+  //printArrayHex() prints an array as hexadecimal.
+  //argument1: int array
+  //argument2: the size of the array (int)
+
+  for (int i = 0; i < arraySize; i++){
+  printf("%02x ", array[i]);
+  }
     printf("\n");
 }
 
 void rotWord(int* src, int len){
+  //rotWord() performs the AES operation rotWord on an array.
+  //argument1: int array
+  //argument2: integer length of a given array
+
     int temper = src[0];
     for(int i = 0;i < len-1 ;i++) {
         src[i] = src[i+1];
@@ -173,12 +183,20 @@ void rotWord(int* src, int len){
 }
 
 void xorArrays(int* src, int* second){
+  //xorArrays() performs the XOR logical operation, on two arrays of length 4. (columns)
+  //argument1: int array
+  //argument2: int array
+
     for (int i = 0; i < 4; i++){
         src[i] = src[i] ^ second[i];
     }
 }
 
 void shift(int* src, int shifts){
+  //shift() performs the circular shift operation of AES on an array.
+  //argument1: int array
+  //argument2: int, the number of shifts to be performed.
+
     for(int i = 0; i < shifts; i++){
         int temper = src[0];
         for(int i = 0;i < 3 ;i++) {
@@ -189,6 +207,8 @@ void shift(int* src, int shifts){
 }
 
 void shiftRows(int* src){
+  //shiftRows() performs the shiftRows operation of AES
+  //argument1: int array
     int r0[4] = {0};
     int r1[4] = {0};
     int r2[4] = {0};
@@ -213,6 +233,8 @@ void shiftRows(int* src){
 }
 
 void InvShiftRows(int* src){
+  //InvShiftRows() performs the inverse shift rows operation of AES in the decryption
+  //argument1: int array
     int r0[4] = {0};
     int r1[4] = {0};
     int r2[4] = {0};
@@ -238,31 +260,48 @@ void InvShiftRows(int* src){
 }
 
 void subBytes(int* src, int type){
+  //subBytes() performs the subBytes operation of AES, in regards to subsitution with the sbox
+  //argument1: int array
+  //argument2: integer to specify length.
     for (int i = 0; i < type; i++){
         src[i] = sbox[src[i]];
     }
 }
 
 void InvSubBytes(int* src, int type){
+  //InvSubBytes() performs the inverse sub bytes noperation of AES, in regards to subsitution with the inverse sbox
+  //argument1: int array
+  //argument2: integer to specify length.
     for (int i = 0; i < type; i++){
         src[i] = InvSbox[src[i]];
     }
 }
 
 void copyArray(int* src, int* dst, int len) {
+  //copyArray() is used to copy one array's content into another array
+  //argument1: int array (the source)
+  //argument2: int array (the destination)
+  //argument3: int length of the arrays
     for (int i = 0; i < len; i++) {
         dst[i] = src[i];
     }
 }
 
 void printArray(int array[], int arraySize){
-	for (int i = 0; i < arraySize; i++){
-		printf("%i ", array[i]);
-	}
-	printf("\n");
+  //printArray() is used to simply print the content of an integer array
+  //argument1: int array
+  //argument2: int size of the array
+  for (int i = 0; i < arraySize; i++){
+  printf("%i ", array[i]);
+  }
+  printf("\n");
 }
 
 void getRoundKey(int* src, int* dst, int round){
+  //getRoundKey() is used to retrieve the current round key corresponding to a round, in AES
+  //argument1: int array
+  //argument2: int array
+  //argument3: integer
     int running = round;
     if (round != 0){
 
@@ -318,6 +357,9 @@ void getRoundKey(int* src, int* dst, int round){
 }
 
 void AddRoundKey(int* state ,int* roundKey){
+  //AddRoundKey() performs the operation of the AddRoundKey in AES
+  //argument1: int array
+  //argument2: int array
     int k0[4] = {0};
     int k1[4] = {0};
     int k2[4] = {0};
@@ -354,22 +396,25 @@ void AddRoundKey(int* state ,int* roundKey){
 
 
 void MixColumns(int *state){
+  //MixColumns() performs the operation of MixColumns in AES
+  //argument1: int array
+
   int tmp[16] = {0};
   tmp[0] = (mul2[state[0]] ^ mul3[state[1]] ^ state[2] ^ state[3]);
   tmp[1] = (state[0] ^ mul2[state[1]] ^ mul3[state[2]] ^ state[3]);
   tmp[2] = (state[0] ^ state[1] ^ mul2[state[2]] ^ mul3[state[3]]);
   tmp[3] = (mul3[state[0]] ^ state[1] ^ state[2] ^ mul2[state[3]]);
- 
+
   tmp[4] = (mul2[state[4]] ^ mul3[state[5]] ^ state[6] ^ state[7]);
   tmp[5] = (state[4] ^ mul2[state[5]] ^ mul3[state[6]] ^ state[7]);
   tmp[6] = (state[4] ^ state[5] ^ mul2[state[6]] ^ mul3[state[7]]);
   tmp[7] = (mul3[state[4]] ^ state[5] ^ state[6] ^ mul2[state[7]]);
- 
+
   tmp[8] = (mul2[state[8]] ^ mul3[state[9]] ^ state[10] ^ state[11]);
   tmp[9] = (state[8] ^ mul2[state[9]] ^ mul3[state[10]] ^ state[11]);
   tmp[10] = (state[8] ^ state[9] ^ mul2[state[10]] ^ mul3[state[11]]);
   tmp[11] = (mul3[state[8]] ^ state[9] ^ state[10] ^ mul2[state[11]]);
- 
+
   tmp[12] = (mul2[state[12]] ^ mul3[state[13]] ^ state[14] ^ state[15]);
   tmp[13] = (state[12] ^ mul2[state[13]] ^ mul3[state[14]] ^ state[15]);
   tmp[14] = (state[12] ^ state[13] ^ mul2[state[14]] ^ mul3[state[15]]);
@@ -378,12 +423,14 @@ void MixColumns(int *state){
 }
 
 void InvMixColumns(int *state){
+  //InvMixColumns() performs the operation of InverseMixColumns in AES in decryption
+  //argument1: int array
   int tmp[16] = {0};
   tmp[0] = (mul14[state[0]] ^ mul11[state[1]] ^ mul13[state[2]] ^ mul9[state[3]]);
   tmp[1] = (mul9[state[0]] ^ mul14[state[1]] ^ mul11[state[2]] ^ mul13[state[3]]);
   tmp[2] = (mul13[state[0]] ^ mul9[state[1]] ^ mul14[state[2]] ^ mul11[state[3]]);
   tmp[3] = (mul11[state[0]] ^ mul13[state[1]] ^ mul9[state[2]] ^ mul14[state[3]]);
- 
+
   tmp[4] = (mul14[state[4]] ^ mul11[state[5]] ^ mul13[state[6]] ^ mul9[state[7]]);
   tmp[5] = (mul9[state[4]] ^ mul14[state[5]] ^ mul11[state[6]] ^ mul13[state[7]]);
   tmp[6] = (mul13[state[4]] ^ mul9[state[5]] ^ mul14[state[6]] ^ mul11[state[7]]);
@@ -402,33 +449,11 @@ void InvMixColumns(int *state){
   copyArray(tmp,state,16);
 }
 
-void ShiftRows(int *state){
-  //Det her kan måske optimeres?
-  int tmp[16] = {0};
-  tmp[0] = state[0];
-  tmp[1] = state[5];
-  tmp[2] = state[10];
-  tmp[3] = state[15];
- 
-  tmp[4] = state[4];
-  tmp[5] = state[9];
-  tmp[6] = state[14];
-  tmp[7] = state[3];
- 
-  tmp[8] = state[8];
-  tmp[9] = state[13];
-  tmp[10] = state[2];
-  tmp[11] = state[7];
- 
-  tmp[12] = state[12];
-  tmp[13] = state[1];
-  tmp[14] = state[6];
-  tmp[15] = state[11];
- 
-  copyArray(tmp,state,16);
-}
 
-void encryption(int* text, int* key){
+void AES_Encryption(int* text, int* key){
+  //performs all the operations of AES in order to encrypt a block of 16 bytes.
+  //argument1: integer array (the input)
+  //argument2: integer array (the key)
 
     int currentRoundKey[16] = {0};
 
@@ -447,12 +472,15 @@ void encryption(int* text, int* key){
 
     // Round 10
     subBytes(text,16);
-    ShiftRows(text);
+    shiftRows(text);
     getRoundKey(key,currentRoundKey,10);
     AddRoundKey(text,currentRoundKey);
 }
 
-void decryption(int* text, int* key){
+void AES_Decryption(int* text, int* key){
+  //performs all the operations of AES in order to decrypt a block of 16 bytes.
+  //argument1: integer array (the input)
+  //argument2: integer array (the key)
     int currentRoundKey[16] = {0};
 
     // Round 0
@@ -467,22 +495,28 @@ void decryption(int* text, int* key){
         AddRoundKey(text,currentRoundKey);
         InvMixColumns(text);
     }
-     
+
     // Round 10
     InvShiftRows(text);
     InvSubBytes(text,16);
     getRoundKey(key,currentRoundKey,0);
     AddRoundKey(text,currentRoundKey);
-    
+
 }
 
 void charToInt(char* src, int* dst){
+  //charToInt() converts a character array to an integer array
+  //argument1: char array
+  //argument2: integer array
     for(int i = 0; i < 16; i++){
         dst[i] = (int)src[i];
     }
 }
 
 void intToChar(int* src, char* dst){
+  //intToChar() converts an integer array to a character array
+  //argument1: integer array
+  //arguemnt2: character array
     for(int i = 0; i < 16; i++){
         dst[i] = (char)src[i];
     }
@@ -490,24 +524,28 @@ void intToChar(int* src, char* dst){
 
 
 int main(void) {
-    // AES SWF file 
+    // AES SWF file
     //int key[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
     //int plaintext[16] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
 
-    // AES Example Kung Fu.pdf
+    // We are encryting: "MAGNUS SEBASTIAN"
+    char testdata[16] = "MAGNUS SEBASTIAN";
+    printf("Testdata is: %.16s\n",testdata);
+    int plaintext[16] = {0};
+    charToInt(testdata,plaintext);
     int key[16] = {0x54, 0x68, 0x61, 0x74, 0x73, 0x20, 0x6d, 0x79, 0x20, 0x4b, 0x75, 0x6e, 0x67, 0x20, 0x46, 0x75};
-    int plaintext[16] = {0x54, 0x77, 0x6f, 0x20, 0x4f, 0x6e, 0x65, 0x20, 0x4e, 0x69, 0x6e, 0x65, 0x20, 0x54, 0x77, 0x6f};
-    
+    //int plaintext[16] = {0x54, 0x77, 0x6f, 0x20, 0x4f, 0x6e, 0x65, 0x20, 0x4e, 0x69, 0x6e, 0x65, 0x20, 0x54, 0x77, 0x6f};
+
     /*
     char inputKey[16];
     int key[16] = {0};
     printf("AES key: ");
     scanf("%[^\n]%*c", inputKey);
     charToInt(inputKey,key);
-	
+
     char input[16];
     char output[16];
-    int plaintext[16] = {0}; 
+    int plaintext[16] = {0};
     printf("Text to send: ");
     scanf("%[^\n]%*c", input);
     printf("\n");
@@ -515,13 +553,15 @@ int main(void) {
     charToInt(input,plaintext);
     printf("Input text: %.16s\n",input);
     */
-   char output[16];
+    char output[16];
+    printf("Encrypting the message, which converted to decimal gives:\n");
+    printArray(plaintext,16);
 
     clock_t begin = clock();
-    encryption(plaintext,key);
+    AES_Encryption(plaintext,key);
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-
+    printf("\n");
     printf("Encrypted: ");
     printArrayHex(plaintext,16);
     printf("Time to encrypt: %f \n", time_spent);
@@ -529,7 +569,7 @@ int main(void) {
 
 
     clock_t begin1 = clock();
-    decryption(plaintext,key);
+    AES_Decryption(plaintext,key);
     clock_t end1 = clock();
     double time_spent1 = (double)(end1 - begin1) / CLOCKS_PER_SEC;
 
@@ -538,6 +578,7 @@ int main(void) {
     printf("Time to encrypt: %f \n", time_spent1);
     printf("\n");
 
-    intToChar(plaintext,output);
+    intToChar(plaintext,output); //hexadeicmal is converted to corresponding character value
     printf("Output text: %.16s\n",output);
+  
 }
