@@ -73,19 +73,18 @@ void setup(){
 ////////// MAIN LOOP //////////
 
 void loop(){
-  
   if (WiFi.softAPgetStationNum() != 0){
-
     encAesMsg = readFromClientAES();
+    fromStringToIntarray(encAesMsg,AES_TEMP_HOLD);
+    String encMSG = intArrayToString(AES_TEMP_HOLD);
     Serial.print("Encrypted message:  ");
+    Serial.println(encMSG);
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Receiving:");
-    fromStringToIntarray(encAesMsg,AES_TEMP_HOLD);
-    intArrayToString(AES_TEMP_HOLD);
-  
+    
     Serial.print("Decrypted message:  ");
-    decryption(AES_TEMP_HOLD, AES_KEY_RECEIVED);
+    AES_decryption(AES_TEMP_HOLD, AES_KEY_RECEIVED);
     for(int i = 0; i<16;i++){
       Serial.print(AES_TEMP_HOLD[i]);
       Serial.print(" ");
@@ -93,22 +92,24 @@ void loop(){
     Serial.println();
     
     String temperature = intArrayToString(AES_TEMP_HOLD);
+    Serial.print("Received: Temp = ");
+    Serial.println(temperature);
     
     if (firsttime){
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.print("Receiving:");
+      lcd.print("Receiving...");
       lcd.setCursor(0, 1);
-      lcd.print(temperature);
+      lcd.print("Temp: "+temperature);
     } else {
       lcd.setCursor(0, 1);
-      lcd.print(temperature);
+      lcd.print("Temp: "+temperature);
     }
     firsttime = false;
     
      // This is print the decrypted input as string
     Serial.println();
-    
+
     Clear_Buffers(AES_packet_buffer, MAX_AES_BUFFER_SIZE);
     
   }
@@ -129,9 +130,13 @@ void softAPConfigESP(){
   Serial.print("IP address of ESPWiFi: ");
   Serial.println(WiFi.softAPIP()); 
   //should be 192.168.4.1 (this is the SoftAP IP, aka. server IP)
+  Serial.println();
   Serial.print("The MAC Address of ESPWiFi: ");
   Serial.println(WiFi.macAddress());
   udp.begin(UDPPort);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("WiFi booted");
 }
 
 void APSetup(){
@@ -141,9 +146,15 @@ void APSetup(){
       break;
     }
   }
+  Serial.println();
   Serial.print("WiFi Clients Connected : ");
   Serial.println(WiFi.softAPgetStationNum()); //Client count. 
   Serial.println();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Client connected");
+  lcd.setCursor(0, 1);
+  lcd.print(WiFi.softAPgetStationNum());
 }
 
 String readFromClient(){
@@ -211,54 +222,80 @@ void CompleteKeySetup(){
   BigNumber privatekey = PrivateKeyGen(); //could be done at the very beginning, before serial.begin, so the calculations are done very early.
   
   //STEP 1. Send Public Key to Sender //
+  Serial.println();
   Serial.println("Sending: RSA Public Key");
   udp.beginPacket(ClientIP,UDPPort);
   udp.print(publickey);
   udp.endPacket();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Sending:");
+  lcd.setCursor(0, 1);
+  lcd.print("RSA Public Key");
 
   // Receiving RSA key ack
   String ReceivedAck = readFromClient();
-  Serial.print("Received : ");
+  Serial.println();
+  Serial.print("Received: ");
   Serial.println(ReceivedAck);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Received:");
+  lcd.setCursor(0, 1);
+  lcd.print("RSA ACK");
 
   // Clear buffer
   Clear_Buffers(standard_packet_buffer, MAX_BUFFER_SIZE);
 
   // Receiving encrypted AES key.
   String encKey = readFromClient();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Received:");
+  lcd.setCursor(0, 1);
+  lcd.print("AES Key");
   delay(5000);
   
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Decrypting");
   lcd.setCursor(0, 1);
-  lcd.print("AES KEY");
+  lcd.print("AES KEY...");
   
   delay(1000);
   BigNumber Encrypted_AES_key = castToBignumber(encKey);
   delay(1000);
-  
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("xxxxxxxxxxxxx");
     
   delay(1000);
-  BigNumber Decrypted_AES_key = Decrypt(Encrypted_AES_key, publickey, privatekey);
+  BigNumber Decrypted_AES_key = RSA_decryption(Encrypted_AES_key, publickey, privatekey);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Decryption:");
+  lcd.setCursor(0, 1);
+  lcd.print("Successed");
   
   fromBignumberToIntarray(Decrypted_AES_key, AES_KEY_RECEIVED);
-  
-  Serial.println("Received the following decrypted AES key:");
+  Serial.println();
+  Serial.print("Received AES Key: ");
   for(int i = 0; i < 16; i++){
-    Serial.println(AES_KEY_RECEIVED[i]);
+    Serial.print(AES_KEY_RECEIVED[i]);
+    Serial.print(" ");
   }
+  Serial.println();
 
 
   // Send AES ACK
+  Serial.println();
   Serial.println("Sending: AES ACK");
   
   udp.beginPacket(ClientIP,UDPPort);
-  udp.printf("AES Ack");
+  udp.printf("AES ACK");
   udp.endPacket();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Sending:");
+  lcd.setCursor(0, 1);
+  lcd.print("AES ACK");
 
   Serial.println();
 }
@@ -268,10 +305,7 @@ String intArrayToString(int *src){
   for (int i = 0; i < 16; i++){
     if (!(src[i] == 0)){
         printer += src[i];
-        Serial.print(src[i]);    
-        }
     }
-  Serial.println();
-  Serial.println(printer);
+  }
   return printer;
 }
