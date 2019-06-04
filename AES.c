@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 
+//Tables for GF(2^8) multiplication 
 
 int mul2[] =
 {
