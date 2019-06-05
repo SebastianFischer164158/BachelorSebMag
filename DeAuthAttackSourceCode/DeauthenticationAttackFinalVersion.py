@@ -141,7 +141,7 @@ class App(QMainWindow):
 		setMonitorMode()
 
 		self.setWindowTitle(self.title)
-		self.setGeometry(50,50,700,700)
+		self.setGeometry(50,50,650,700)
 
 		#BSSID for the AP for the attack
 		self.textboxAP = QLineEdit(self)
@@ -225,6 +225,13 @@ class App(QMainWindow):
 		self.sniffStationbox.resize(600,310)
 		self.sniffStationbox.hide()
 
+		#author LABEL
+		self.authorlabel = QLabel("v1.0 - Sebastian & Magnus",self)
+		self.authorlabel.setFont(QtGui.QFont("Times",weight=QtGui.QFont.Bold))
+		self.authorlabel.move(200,638)
+		self.authorlabel.resize(270,100)
+
+		self.setFixedSize(self.size())
 		self.show()
 
 	#@pyqtSlot()
@@ -440,7 +447,7 @@ class App(QMainWindow):
 		framecount = 0
 		sentTimeSpend = 0
 		channel_value = 1
-		
+
 		del ssid_bssid[:]
 		del STA_list[:]
 
