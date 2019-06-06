@@ -31,7 +31,7 @@ bool hi = true;
 int AES_KEY[16] = {0x54, 0x48, 0x41, 0x54, 0x53, 0x20, 0x4d, 0x59, 0x20, 0x4b, 0x55, 0x4e, 0x47, 0x20, 0x46, 0x55}; //THATS MY KONG FU
 int txt_to_encrypt[16] = {0};
 
-char test[16] = "TEMPERATURERRRR";
+char test[16] = "ASECRETMESSAGE";
 char holdkey[33];
 
 int txt_len = strlen(test);
