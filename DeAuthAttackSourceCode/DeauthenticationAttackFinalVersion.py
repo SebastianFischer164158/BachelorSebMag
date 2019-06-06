@@ -279,11 +279,15 @@ class App(QMainWindow):
 
 		if frame.haslayer(Dot11):
 			if frame.type == 2:
+				#toDS from DS holdes i FCField (Frame Control Field)
+				#Vi henter hele fc fieldet ved frame.FCfield & 0x03 (["to-DS", "from-DS", "MF", "retry", "pw-mgt", "MD", "wep", "order"])
+				#Og retriever derefter toDS og fromDS ved nedestående.    
 				DS = frame.FCfield & 0x03
 				toDS = DS & 0x01 != 0
 				fromDS = DS & 0x2 != 0
+				
 
-
+				#source: https://mrncciew.files.wordpress.com/2014/09/cwap-mac-address-01.png
 				if toDS == 0 and fromDS == 0:  # dette burde KUN være data frames der sendes til AP.
 					RA = DA = frame.addr1.upper()  # RA= REciver, DA = fianl destination
 					TA = SA = frame.addr2.upper()
