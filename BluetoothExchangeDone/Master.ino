@@ -1,6 +1,7 @@
 // Imports
 #include <SoftwareSerial.h>
 
+
 #include "AES.h"
 #include "RSA.h"
 
@@ -89,15 +90,18 @@ void loop(){
     delay(2500);
     Serial.println();
     Serial.println("State: 2");
-    
+    ESP.wdtDisable();
     myString = readBluetooth();
     Serial.print("Received encrypted AES_KEY: ");
     Serial.println(myString);
     BigNumber ENC_AESKey = castToBignumber(myString);
+    ESP.wdtDisable();
     AesKey = RSA_decryption(ENC_AESKey, publickey, privatekey);
+    ENC_AESKey = 0;
     fromBignumberToIntarray(AesKey,AES_key);
     Serial.print("Decrypted AES_Key: ");
     Serial.println(AesKey);
+    delay(100);
     
     
     state = 3;
@@ -109,6 +113,7 @@ void loop(){
     sendStringNumber("AES Key received...");
     Serial.println("Sending: AES Key received...");
     Serial.println();
+    
     state = 4;
     AesComm = true;
   }
@@ -116,6 +121,8 @@ void loop(){
   Serial.print("AES communication enabled: ");
   if (AesComm){
     Serial.println("TRUE");
+
+ 
   } else {
     Serial.println("FALSE");
   }
@@ -146,7 +153,7 @@ delay(1000);
 
 String readBluetooth(){
   String temp = "";
-  //ESP.wdtDisable();
+  ESP.wdtDisable();
   Serial.print("Waiting for Data..");
   while (temp == ""){
     Serial.print(".");
@@ -236,18 +243,6 @@ void intArrayToString(int *src){
 } // End of intArrayToString. 
 
 
-void fromBignumberToIntarray(BigNumber src, int *dst){
-  String tempKeyHolder = src.toString();
-  String HoldRes;
-  for (int i = 0; i < 16; i++){
-    HoldRes = "";
-    HoldRes += tempKeyHolder[(i*2)];
-    HoldRes += tempKeyHolder[((i*2)+1)];
-    
-    dst[i] = HoldRes.toInt();
-  }
-} // End of fromBignumberToIntarray.
-
 void printIntArray(String prefix, int *src, int sizeArray){
   delay(50);
   Serial.print(prefix);
@@ -257,4 +252,3 @@ void printIntArray(String prefix, int *src, int sizeArray){
     }
     Serial.println();
 }
-
