@@ -3,7 +3,6 @@
 #include <time.h>
 #include <string.h>
 
-//Tables for GF(2^8) multiplication 
 
 int mul2[] =
 {
@@ -163,6 +162,17 @@ int InvSbox [256] = {
 void printArrayHex(int array[], int arraySize){
   //printArrayHex() prints an array as hexadecimal.
   //argument1: int array
+  //argument2: the size of the array (int)
+
+  for (int i = 0; i < arraySize; i++){
+  printf("%02x ", array[i]);
+  }
+    printf("\n");
+}
+
+void printArrayChartoHex(char array[], int arraySize){
+  //printArrayHex() prints an array as hexadecimal.
+  //argument1: char array
   //argument2: the size of the array (int)
 
   for (int i = 0; i < arraySize; i++){
@@ -450,32 +460,52 @@ void InvMixColumns(int *state){
   copyArray(tmp,state,16);
 }
 
-
+void printasMatrix(int* test){
+  printf("%02x %02x %02x %02x\n%02x %02x %02x %02x\n%02x %02x %02x %02x\n%02x %02x %02x %02x\n",
+  test[0],test[4],test[8],test[12],test[1],test[5],test[9],test[13],test[2],test[6],test[10],test[14],test[3],test[7],test[11],test[15]);
+}
 void AES_Encryption(int* text, int* key){
   //performs all the operations of AES in order to encrypt a block of 16 bytes.
   //argument1: integer array (the input)
   //argument2: integer array (the key)
 
     int currentRoundKey[16] = {0};
+    printasMatrix(text);
 
     //Round 0
     getRoundKey(key,currentRoundKey,0);
+    printf("-------- ROUND 0 --------\n");
+    printf("Round KEY 0: \n");
+    printArrayHex(currentRoundKey,16);
     AddRoundKey(text,currentRoundKey);
+    printf("Result of ROUND 0 \n");
+    printasMatrix(text);
 
     //Round 1-9
     for (int k = 1; k < 10; k++){
+
         subBytes(text,16);
         shiftRows(text);
         MixColumns(text);
         getRoundKey(key,currentRoundKey,k);
+        //printf("-------- ROUND %i --------\n",k);
+        printf("Round KEY %i: \n",k);
+        printArrayHex(currentRoundKey,16);
         AddRoundKey(text,currentRoundKey);
+        printf("Result of ROUND %i \n",k);
+        printasMatrix(text);
     }
 
     // Round 10
+    printf("-------- ROUND 10--------\n");
     subBytes(text,16);
     shiftRows(text);
     getRoundKey(key,currentRoundKey,10);
+    printf("Round KEY 10: \n");
+    printArrayHex(currentRoundKey,16);
     AddRoundKey(text,currentRoundKey);
+    printf("Result of ROUND 10 \n");
+    printasMatrix(text);
 }
 
 void AES_Decryption(int* text, int* key){
@@ -525,38 +555,23 @@ void intToChar(int* src, char* dst){
 
 
 int main(void) {
-    // AES SWF file
-    //int key[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
-    //int plaintext[16] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
 
-    // We are encryting: "MAGNUS SEBASTIAN"
-    char testdata[16] = "MAGNUS SEBASTIAN";
-    printf("Testdata is: %.16s\n",testdata);
+    // We are encryting: "Two One Nine Two"
+    char testdata[16] = "Two One Nine Two";
+    printf("Testdata is:\n%.16s",testdata);
+    printf("\nTestdata in hexadeicmal:\n");
+    printArrayChartoHex(testdata,16);
     int plaintext[16] = {0};
     charToInt(testdata,plaintext);
+    //KEY: 'Thats my Kung Fu' translated to HEX
+    char aes_key[16] = "Thats my Kung Fu";
+    printf("\nThe Key:\n%.16s\n", aes_key);
     int key[16] = {0x54, 0x68, 0x61, 0x74, 0x73, 0x20, 0x6d, 0x79, 0x20, 0x4b, 0x75, 0x6e, 0x67, 0x20, 0x46, 0x75};
-    //int plaintext[16] = {0x54, 0x77, 0x6f, 0x20, 0x4f, 0x6e, 0x65, 0x20, 0x4e, 0x69, 0x6e, 0x65, 0x20, 0x54, 0x77, 0x6f};
+    printf("\nThe key in hex:\n");
+    printArrayHex(key,16);
 
-    /*
-    char inputKey[16];
-    int key[16] = {0};
-    printf("AES key: ");
-    scanf("%[^\n]%*c", inputKey);
-    charToInt(inputKey,key);
-
-    char input[16];
     char output[16];
-    int plaintext[16] = {0};
-    printf("Text to send: ");
-    scanf("%[^\n]%*c", input);
-    printf("\n");
-
-    charToInt(input,plaintext);
-    printf("Input text: %.16s\n",input);
-    */
-    char output[16];
-    printf("Encrypting the message, which converted to decimal gives:\n");
-    printArray(plaintext,16);
+    printf("Encrypting the message\n");
 
     clock_t begin = clock();
     AES_Encryption(plaintext,key);
@@ -581,5 +596,5 @@ int main(void) {
 
     intToChar(plaintext,output); //hexadeicmal is converted to corresponding character value
     printf("Output text: %.16s\n",output);
-  
+
 }
