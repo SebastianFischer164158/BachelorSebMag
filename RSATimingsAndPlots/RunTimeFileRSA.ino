@@ -57,7 +57,7 @@ void setup() {
   
   BigNumber m = "84726584833277893275857871327085";
   //THATS MY KUNG FU
-  //84 72 65 84 83 32 77 89 32 75 85 78 71 32 70 85      (this is in decimal bytes) 
+  //84 72 65 84 83 32 77 89 32 75 85 78 71 32 70 85      (this is in decimal) ASCII -> DECIMAL 
   //https://www.rapidtables.com/convert/number/ascii-hex-bin-dec-converter.html
   
   unsigned long start_encrypt = millis();
