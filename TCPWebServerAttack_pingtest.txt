@@ -1,0 +1,118 @@
+PING 192.168.43.49 (192.168.43.49): 56 data bytes
+64 bytes from 192.168.43.49: icmp_seq=0 ttl=255 time=417.827 ms
+64 bytes from 192.168.43.49: icmp_seq=1 ttl=255 time=32.672 ms
+64 bytes from 192.168.43.49: icmp_seq=2 ttl=255 time=50.860 ms
+64 bytes from 192.168.43.49: icmp_seq=3 ttl=255 time=68.355 ms
+64 bytes from 192.168.43.49: icmp_seq=4 ttl=255 time=89.523 ms
+64 bytes from 192.168.43.49: icmp_seq=5 ttl=255 time=108.213 ms
+64 bytes from 192.168.43.49: icmp_seq=6 ttl=255 time=128.516 ms
+64 bytes from 192.168.43.49: icmp_seq=7 ttl=255 time=150.162 ms
+64 bytes from 192.168.43.49: icmp_seq=8 ttl=255 time=371.695 ms
+64 bytes from 192.168.43.49: icmp_seq=9 ttl=255 time=190.625 ms
+64 bytes from 192.168.43.49: icmp_seq=10 ttl=255 time=225.192 ms
+64 bytes from 192.168.43.49: icmp_seq=11 ttl=255 time=25.330 ms
+64 bytes from 192.168.43.49: icmp_seq=12 ttl=255 time=45.109 ms
+64 bytes from 192.168.43.49: icmp_seq=13 ttl=255 time=64.291 ms
+64 bytes from 192.168.43.49: icmp_seq=14 ttl=255 time=83.184 ms
+64 bytes from 192.168.43.49: icmp_seq=15 ttl=255 time=103.065 ms
+64 bytes from 192.168.43.49: icmp_seq=16 ttl=255 time=122.013 ms
+Request timeout for icmp_seq 17
+Request timeout for icmp_seq 18
+Request timeout for icmp_seq 19
+Request timeout for icmp_seq 20
+Request timeout for icmp_seq 21
+Request timeout for icmp_seq 22
+Request timeout for icmp_seq 23
+Request timeout for icmp_seq 24
+Request timeout for icmp_seq 25
+Request timeout for icmp_seq 26
+Request timeout for icmp_seq 27
+Request timeout for icmp_seq 28
+Request timeout for icmp_seq 29
+Request timeout for icmp_seq 30
+Request timeout for icmp_seq 31
+Request timeout for icmp_seq 32
+Request timeout for icmp_seq 33
+Request timeout for icmp_seq 34
+Request timeout for icmp_seq 35
+Request timeout for icmp_seq 36
+Request timeout for icmp_seq 37
+Request timeout for icmp_seq 38
+Request timeout for icmp_seq 39
+Request timeout for icmp_seq 40
+Request timeout for icmp_seq 41
+Request timeout for icmp_seq 42
+Request timeout for icmp_seq 43
+Request timeout for icmp_seq 44
+Request timeout for icmp_seq 45
+Request timeout for icmp_seq 46
+Request timeout for icmp_seq 47
+Request timeout for icmp_seq 48
+Request timeout for icmp_seq 49
+Request timeout for icmp_seq 50
+Request timeout for icmp_seq 51
+Request timeout for icmp_seq 52
+Request timeout for icmp_seq 53
+Request timeout for icmp_seq 54
+Request timeout for icmp_seq 55
+Request timeout for icmp_seq 56
+Request timeout for icmp_seq 57
+Request timeout for icmp_seq 58
+Request timeout for icmp_seq 59
+Request timeout for icmp_seq 60
+Request timeout for icmp_seq 61
+Request timeout for icmp_seq 62
+Request timeout for icmp_seq 63
+Request timeout for icmp_seq 64
+Request timeout for icmp_seq 65
+Request timeout for icmp_seq 66
+Request timeout for icmp_seq 67
+Request timeout for icmp_seq 68
+Request timeout for icmp_seq 69
+Request timeout for icmp_seq 70
+Request timeout for icmp_seq 71
+Request timeout for icmp_seq 72
+Request timeout for icmp_seq 73
+Request timeout for icmp_seq 74
+Request timeout for icmp_seq 75
+Request timeout for icmp_seq 76
+Request timeout for icmp_seq 77
+Request timeout for icmp_seq 78
+Request timeout for icmp_seq 79
+Request timeout for icmp_seq 80
+Request timeout for icmp_seq 81
+Request timeout for icmp_seq 82
+Request timeout for icmp_seq 83
+Request timeout for icmp_seq 84
+Request timeout for icmp_seq 85
+Request timeout for icmp_seq 86
+Request timeout for icmp_seq 87
+Request timeout for icmp_seq 88
+Request timeout for icmp_seq 89
+Request timeout for icmp_seq 90
+Request timeout for icmp_seq 91
+Request timeout for icmp_seq 92
+Request timeout for icmp_seq 93
+Request timeout for icmp_seq 94
+Request timeout for icmp_seq 95
+Request timeout for icmp_seq 96
+Request timeout for icmp_seq 97
+Request timeout for icmp_seq 98
+Request timeout for icmp_seq 99
+Request timeout for icmp_seq 100
+Request timeout for icmp_seq 101
+Request timeout for icmp_seq 102
+Request timeout for icmp_seq 103
+Request timeout for icmp_seq 104
+Request timeout for icmp_seq 105
+Request timeout for icmp_seq 106
+Request timeout for icmp_seq 107
+Request timeout for icmp_seq 108
+Request timeout for icmp_seq 109
+Request timeout for icmp_seq 110
+Request timeout for icmp_seq 111
+Request timeout for icmp_seq 112
+Request timeout for icmp_seq 113
+Request timeout for icmp_seq 114
+Request timeout for icmp_seq 115
+Request timeout for icmp_seq 116
