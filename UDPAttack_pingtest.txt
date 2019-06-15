@@ -1,0 +1,111 @@
+PING 192.168.4.1 (192.168.4.1): 56 data bytes
+64 bytes from 192.168.4.1: icmp_seq=0 ttl=255 time=1.753 ms
+64 bytes from 192.168.4.1: icmp_seq=1 ttl=255 time=4.087 ms
+64 bytes from 192.168.4.1: icmp_seq=2 ttl=255 time=2.087 ms
+64 bytes from 192.168.4.1: icmp_seq=3 ttl=255 time=1.934 ms
+64 bytes from 192.168.4.1: icmp_seq=4 ttl=255 time=2.866 ms
+64 bytes from 192.168.4.1: icmp_seq=5 ttl=255 time=1.877 ms
+64 bytes from 192.168.4.1: icmp_seq=6 ttl=255 time=2.806 ms
+64 bytes from 192.168.4.1: icmp_seq=7 ttl=255 time=2.302 ms
+64 bytes from 192.168.4.1: icmp_seq=8 ttl=255 time=2.059 ms
+64 bytes from 192.168.4.1: icmp_seq=9 ttl=255 time=1.794 ms
+64 bytes from 192.168.4.1: icmp_seq=10 ttl=255 time=2.028 ms
+64 bytes from 192.168.4.1: icmp_seq=11 ttl=255 time=3.866 ms
+64 bytes from 192.168.4.1: icmp_seq=12 ttl=255 time=2.025 ms
+64 bytes from 192.168.4.1: icmp_seq=13 ttl=255 time=1.917 ms
+64 bytes from 192.168.4.1: icmp_seq=14 ttl=255 time=2.005 ms
+64 bytes from 192.168.4.1: icmp_seq=15 ttl=255 time=2.051 ms
+64 bytes from 192.168.4.1: icmp_seq=16 ttl=255 time=1.871 ms
+64 bytes from 192.168.4.1: icmp_seq=17 ttl=255 time=3.705 ms
+64 bytes from 192.168.4.1: icmp_seq=18 ttl=255 time=2.008 ms
+64 bytes from 192.168.4.1: icmp_seq=19 ttl=255 time=1.921 ms
+64 bytes from 192.168.4.1: icmp_seq=20 ttl=255 time=1.950 ms
+64 bytes from 192.168.4.1: icmp_seq=21 ttl=255 time=5.033 ms
+64 bytes from 192.168.4.1: icmp_seq=22 ttl=255 time=939.212 ms
+64 bytes from 192.168.4.1: icmp_seq=23 ttl=255 time=1.618 ms
+64 bytes from 192.168.4.1: icmp_seq=24 ttl=255 time=2.635 ms
+64 bytes from 192.168.4.1: icmp_seq=25 ttl=255 time=2.951 ms
+64 bytes from 192.168.4.1: icmp_seq=26 ttl=255 time=2.034 ms
+64 bytes from 192.168.4.1: icmp_seq=27 ttl=255 time=1.589 ms
+64 bytes from 192.168.4.1: icmp_seq=28 ttl=255 time=1.680 ms
+64 bytes from 192.168.4.1: icmp_seq=29 ttl=255 time=1.567 ms
+64 bytes from 192.168.4.1: icmp_seq=30 ttl=255 time=1.524 ms
+64 bytes from 192.168.4.1: icmp_seq=31 ttl=255 time=1.809 ms
+64 bytes from 192.168.4.1: icmp_seq=32 ttl=255 time=1.755 ms
+64 bytes from 192.168.4.1: icmp_seq=33 ttl=255 time=1.840 ms
+64 bytes from 192.168.4.1: icmp_seq=34 ttl=255 time=1.699 ms
+64 bytes from 192.168.4.1: icmp_seq=35 ttl=255 time=1.570 ms
+64 bytes from 192.168.4.1: icmp_seq=36 ttl=255 time=1.585 ms
+64 bytes from 192.168.4.1: icmp_seq=37 ttl=255 time=1.490 ms
+64 bytes from 192.168.4.1: icmp_seq=38 ttl=255 time=1.583 ms
+64 bytes from 192.168.4.1: icmp_seq=39 ttl=255 time=1.579 ms
+64 bytes from 192.168.4.1: icmp_seq=40 ttl=255 time=1.521 ms
+Request timeout for icmp_seq 41
+Request timeout for icmp_seq 42
+64 bytes from 192.168.4.1: icmp_seq=43 ttl=255 time=11.714 ms
+Request timeout for icmp_seq 44
+Request timeout for icmp_seq 45
+Request timeout for icmp_seq 46
+64 bytes from 192.168.4.1: icmp_seq=47 ttl=255 time=14.259 ms
+Request timeout for icmp_seq 48
+Request timeout for icmp_seq 49
+64 bytes from 192.168.4.1: icmp_seq=50 ttl=255 time=11.299 ms
+Request timeout for icmp_seq 51
+Request timeout for icmp_seq 52
+Request timeout for icmp_seq 53
+Request timeout for icmp_seq 54
+Request timeout for icmp_seq 55
+64 bytes from 192.168.4.1: icmp_seq=56 ttl=255 time=10.622 ms
+64 bytes from 192.168.4.1: icmp_seq=57 ttl=255 time=7.117 ms
+Request timeout for icmp_seq 58
+Request timeout for icmp_seq 59
+64 bytes from 192.168.4.1: icmp_seq=60 ttl=255 time=9.292 ms
+64 bytes from 192.168.4.1: icmp_seq=61 ttl=255 time=11.116 ms
+64 bytes from 192.168.4.1: icmp_seq=62 ttl=255 time=13.445 ms
+Request timeout for icmp_seq 63
+Request timeout for icmp_seq 64
+Request timeout for icmp_seq 65
+Request timeout for icmp_seq 66
+64 bytes from 192.168.4.1: icmp_seq=67 ttl=255 time=12.199 ms
+Request timeout for icmp_seq 68
+64 bytes from 192.168.4.1: icmp_seq=69 ttl=255 time=1.606 ms
+Request timeout for icmp_seq 70
+Request timeout for icmp_seq 71
+64 bytes from 192.168.4.1: icmp_seq=72 ttl=255 time=10.585 ms
+Request timeout for icmp_seq 73
+64 bytes from 192.168.4.1: icmp_seq=74 ttl=255 time=10.117 ms
+Request timeout for icmp_seq 75
+Request timeout for icmp_seq 76
+64 bytes from 192.168.4.1: icmp_seq=77 ttl=255 time=13.900 ms
+Request timeout for icmp_seq 78
+64 bytes from 192.168.4.1: icmp_seq=79 ttl=255 time=11.540 ms
+Request timeout for icmp_seq 80
+Request timeout for icmp_seq 81
+Request timeout for icmp_seq 82
+Request timeout for icmp_seq 83
+Request timeout for icmp_seq 84
+64 bytes from 192.168.4.1: icmp_seq=85 ttl=255 time=8.338 ms
+Request timeout for icmp_seq 86
+Request timeout for icmp_seq 87
+Request timeout for icmp_seq 88
+Request timeout for icmp_seq 89
+64 bytes from 192.168.4.1: icmp_seq=90 ttl=255 time=1.491 ms
+64 bytes from 192.168.4.1: icmp_seq=91 ttl=255 time=1.641 ms
+64 bytes from 192.168.4.1: icmp_seq=92 ttl=255 time=2.803 ms
+64 bytes from 192.168.4.1: icmp_seq=93 ttl=255 time=1.713 ms
+64 bytes from 192.168.4.1: icmp_seq=94 ttl=255 time=1.902 ms
+64 bytes from 192.168.4.1: icmp_seq=95 ttl=255 time=1.539 ms
+64 bytes from 192.168.4.1: icmp_seq=96 ttl=255 time=1.719 ms
+64 bytes from 192.168.4.1: icmp_seq=97 ttl=255 time=2.728 ms
+64 bytes from 192.168.4.1: icmp_seq=98 ttl=255 time=104.925 ms
+64 bytes from 192.168.4.1: icmp_seq=99 ttl=255 time=2.722 ms
+64 bytes from 192.168.4.1: icmp_seq=100 ttl=255 time=1.461 ms
+64 bytes from 192.168.4.1: icmp_seq=101 ttl=255 time=85.507 ms
+64 bytes from 192.168.4.1: icmp_seq=102 ttl=255 time=2.025 ms
+64 bytes from 192.168.4.1: icmp_seq=103 ttl=255 time=2.621 ms
+64 bytes from 192.168.4.1: icmp_seq=104 ttl=255 time=2.718 ms
+64 bytes from 192.168.4.1: icmp_seq=105 ttl=255 time=3.231 ms
+64 bytes from 192.168.4.1: icmp_seq=106 ttl=255 time=3.321 ms
+64 bytes from 192.168.4.1: icmp_seq=107 ttl=255 time=3.470 ms
+64 bytes from 192.168.4.1: icmp_seq=108 ttl=255 time=2.121 ms
+64 bytes from 192.168.4.1: icmp_seq=109 ttl=255 time=2.862 ms
