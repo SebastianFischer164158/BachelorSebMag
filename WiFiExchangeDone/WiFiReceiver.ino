@@ -19,7 +19,7 @@ const char *SoftAP_SSID = "ESP32SOFTAP";
 const char *SoftAP_PASS = "testpassword";
 const int SoftAP_Channel = 5;
 const int SoftAP_Cloak = 0;
-const int SoftAP_Max_Conn = 3;
+const int SoftAP_Max_Conn = 5;
 
 // local port to listen for UDP packets
 const unsigned int UDPPort = 2000;
@@ -218,8 +218,9 @@ void fromStringToIntarray(String src, int *dst){
 
 void CompleteKeySetup(){
   // Generate RSA keys
-  BigNumber publickey = PublicKeyGen();
-  BigNumber privatekey = PrivateKeyGen(); //could be done at the very beginning, before serial.begin, so the calculations are done very early.
+  BigNumber publickey = PublicKeyGen("34169090529181804975509056946439162865195316898547061713223274034873259174398131810568013649207194042897653590213438750899278631021362723640271358164566011","6480748263904619031680260331936564669623869952492469641161930262856628003360317687993928982065215349138700631936521201127616864444987232349342262924810817");
+  BigNumber privatekey = PrivateKeyGen("34169090529181804975509056946439162865195316898547061713223274034873259174398131810568013649207194042897653590213438750899278631021362723640271358164566011","6480748263904619031680260331936564669623869952492469641161930262856628003360317687993928982065215349138700631936521201127616864444987232349342262924810817");
+  //could be done at the very beginning, before serial.begin, so the calculations are done very early.
   
   //STEP 1. Send Public Key to Sender //
   Serial.println();
