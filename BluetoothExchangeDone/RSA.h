@@ -59,18 +59,14 @@ BigNumber RSA_decryption(BigNumber EncryptedMsg, BigNumber PublicKey, BigNumber 
   return decryption;
 }
 
-BigNumber PublicKeyGen()
+BigNumber PublicKeyGen(BigNumber firstPrime, BigNumber secondPrime)
 {
-  BigNumber firstPrime = "270829151403165362263353014441";
-  BigNumber secondPrime = "862699783256371538247782181241";
   BigNumber PublicKey = firstPrime * secondPrime;
   return PublicKey;
 }
 
-BigNumber PrivateKeyGen()
+BigNumber PrivateKeyGen(BigNumber firstPrime, BigNumber secondPrime)
 {
-  BigNumber firstPrime = "270829151403165362263353014441";
-  BigNumber secondPrime = "862699783256371538247782181241";
   BigNumber CoPrime = "307";
   BigNumber phi = (firstPrime-"1") * (secondPrime-"1");
   BigNumber PrivateKey = modInv(CoPrime,phi);
