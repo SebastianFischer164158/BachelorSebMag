@@ -15,7 +15,6 @@ void sendIntArray(int, int);
 
 BigNumber castToBignumber(String);
 
-
 // Serial declerations
 SoftwareSerial BTSerial(D6, D7); // TX | RX
 
@@ -105,7 +104,7 @@ void loop(){
   }
 
   Serial.print("AES communication enabled: ");
-  if (AesComm){
+  if (AesComm){ 
     Serial.println("TRUE");
   } else {
     Serial.println("FALSE");
