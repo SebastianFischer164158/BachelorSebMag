@@ -82,9 +82,9 @@ void setup(){
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("Connected to WIFI.");
-  
-    // After WiFi connection established, do the key setup.
 
+    
+    // After WiFi connection established, do the key setup.
     CompleteKeySetup();
 
     //the message we want to sent//
