@@ -1,7 +1,5 @@
 // Imports
 #include <SoftwareSerial.h>
-
-
 #include "AES.h"
 #include "RSA.h"
 
@@ -16,7 +14,6 @@ void fromBignumberToIntarray(BigNumber, int);
 void printIntArray(String, int, int);
 
 BigNumber castToBignumber(String);
-
 
 // Serial declerations 
 SoftwareSerial BTSerial(D6, D7); // RX | TX
@@ -48,8 +45,8 @@ void setup()
   BigNumber::begin();
 
   delay(500);
-  publickey = PublicKeyGen();
-  privatekey = PrivateKeyGen(); //could be done at the very beginning, before serial.begin, so the calculations are done very early.
+  publickey = PublicKeyGen("270829151403165362263353014441","862699783256371538247782181241");
+  privatekey = PrivateKeyGen("270829151403165362263353014441","862699783256371538247782181241"); //could be done at the very beginning, before serial.begin, so the calculations are done very early.
   Serial.print("PublicKey: ");
   Serial.println(publickey);
 
