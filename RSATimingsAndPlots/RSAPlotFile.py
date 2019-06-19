@@ -3,7 +3,9 @@ import numpy as np
 from scipy.optimize import curve_fit
 plt.style.use("seaborn-darkgrid")
 keysizeticks = np.arange(40,621,20)
+font = {'size'   : 15}
 
+plt.rc('font', **font)
 #keysizeticks = np.array([40,60,80,100,120,140,155,160,
 # 180,200,220,240,260,280,300,309,320,340,360,
 # 380,400,420,440,460,480,500,520,540,560,580,600,617,620])
@@ -71,10 +73,12 @@ ax1.text(655,rsa1024_mark_keygen, "RSA-1024", va='center', ha="left", bbox=face_
 #ax1.text(-18,rsa1024_mark_keygen, "7")
 ax1.text(655,rsa2048_mark_keygen, "RSA-2048", va='center', ha="left", bbox=face_comb)
 #ax1.text(-24,rsa2048_mark_keygen, "16")
-ax1.set_ylabel('[ms]', fontsize=10)
+ax1.set_ylabel('[ms]', fontsize=15)
 ax1.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
 plt.xticks(keysizeticks)
 plt.yticks(np.arange(1,17))
+plt.title("Keysize vs. Key Generation - ESP32")
+
 plt.plot(np.unique(keysizes), np.poly1d(np.polyfit(keysizes, keygen_time_ESP32, 1))(np.unique(keysizes)),linestyle=':')
 plt.plot(155, rsa512_mark_keygen, 'xr')
 plt.plot(309, rsa1024_mark_keygen, 'xr')
@@ -90,15 +94,16 @@ ax2.axhline(y=rsa512_mark_encrypt, color='gray', linestyle=':') #RSA-155 (RSA-51
 ax2.axhline(y=rsa1024_mark_encrypt, color='gray', linestyle=':') #RSA-1024 (309 decimals)
 ax2.axhline(y=rsa2048_mark_encrypt, color='gray', linestyle=':') #RSA-2048 (617 decimals)
 ax2.text(655,rsa512_mark_encrypt, "RSA-512", va='center', ha="left", bbox=face_comb)
-ax2.text(-11,rsa512_mark_encrypt, "75")
+#ax2.text(-11,rsa512_mark_encrypt, "75")
 ax2.text(655,rsa1024_mark_encrypt, "RSA-1024", va='center', ha="left", bbox=face_comb)
-ax2.text(-18,rsa1024_mark_encrypt, "222")
+#ax2.text(-18,rsa1024_mark_encrypt, "222")
 ax2.text(655,rsa2048_mark_encrypt, "RSA-2048", va='center', ha="left", bbox=face_comb)
-ax2.text(-24,rsa2048_mark_encrypt, "676")
-ax2.set_ylabel('[ms]', fontsize=10)
+#ax2.text(-24,rsa2048_mark_encrypt, "676")
+ax2.set_ylabel('[ms]', fontsize=15)
 ax2.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
 plt.xticks(keysizeticks)
 plt.plot(np.unique(keysizes), np.poly1d(np.polyfit(keysizes, encrypt_times_ESP32, 1))(np.unique(keysizes)),linestyle=':')
+plt.title("Keysize vs. Encryption - ESP32")
 plt.plot(155, rsa512_mark_encrypt, 'xr')
 plt.plot(309, rsa1024_mark_encrypt, 'xr')
 plt.plot(617, rsa2048_mark_encrypt, 'xr')
@@ -113,12 +118,12 @@ ax3.axhline(y=rsa512_mark_decrypt, color='gray', linestyle=':') #RSA-155 (RSA-51
 ax3.axhline(y=rsa1024_mark_decrypt, color='gray', linestyle=':') #RSA-1024 (309 decimals)
 ax3.axhline(y=rsa2048_mark_decrypt, color='gray', linestyle=':') #RSA-2048 (617 decimals)
 ax3.text(655,rsa512_mark_decrypt, "RSA-512", va='center', ha="left", bbox=face_comb)
-ax3.text(-11,rsa512_mark_decrypt, "5862")
+#ax3.text(-11,rsa512_mark_decrypt, "5862")
 ax3.text(655,rsa1024_mark_decrypt, "RSA-1024", va='center', ha="left", bbox=face_comb)
-ax3.text(-18,rsa1024_mark_decrypt, "41682")
+#ax3.text(-18,rsa1024_mark_decrypt, "41682")
 ax3.text(655,rsa2048_mark_decrypt, "RSA-2048", va='center', ha="left", bbox=face_comb)
-ax3.text(-24,rsa2048_mark_decrypt, "303105")
-ax3.set_ylabel('[ms]', fontsize=10)
+#ax3.text(-24,rsa2048_mark_decrypt, "303105")
+ax3.set_ylabel('[ms]', fontsize=15)
 ax3.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
 plt.xticks(keysizeticks)
 plt.yticks(np.arange(0,330000,25000))
@@ -129,6 +134,7 @@ plt.plot(x_linspace, power_y,linestyle=':')
 plt.plot(155, rsa512_mark_decrypt, 'xr')
 plt.plot(309, rsa1024_mark_decrypt, 'xr')
 plt.plot(617, rsa2048_mark_decrypt, 'xr')
+plt.title("Keysize vs. Decryption - ESP32")
 
 #              2 - ARDUINO MEGA PLOTS
 #keysize vs keygen
@@ -138,8 +144,10 @@ ax4.plot(keysizes[0:13],keygen_time_MEGA)
 ax4.axhline(y=rsa512_mark_MEGA_keygen, color='gray', linestyle=':') #RSA-155 (RSA-512 bits)
 ax4.text(273,rsa512_mark_MEGA_keygen, "RSA-512", va='center', ha="left", bbox=face_comb)
 ax4.text(24,rsa512_mark_MEGA_keygen, "75")
-ax4.set_ylabel('[ms]', fontsize=10)
+ax4.set_ylabel('[ms]', fontsize=15)
 plt.xticks(np.arange(40,261,20))
+plt.title("Keysize vs. Key Generation - MEGA")
+
 ax4.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
 plt.plot(155, rsa512_mark_MEGA_keygen, 'xr')
 
@@ -150,7 +158,9 @@ ax5.plot(keysizes[0:13],encrypt_times_MEGA)
 ax5.axhline(y=rsa512_mark_MEGA_encrypt, color='gray', linestyle=':') #RSA-155 (RSA-512 bits)
 ax5.text(273,rsa512_mark_MEGA_encrypt, "RSA-512", va='center', ha="left", bbox=face_comb)
 #ax5.text(24,rsa512_mark_MEGA_encrypt, "4101")
-ax5.set_ylabel('[ms]', fontsize=10)
+plt.title("Keysize vs. Encryption - MEGA")
+
+ax5.set_ylabel('[ms]', fontsize=15)
 plt.xticks(np.arange(40,261,20))
 ax5.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
 plt.plot(155, rsa512_mark_MEGA_encrypt, 'xr')
@@ -161,9 +171,10 @@ fig6, ax6 = plt.subplots(1,figsize=(12,9))
 ax6.plot(keysizes[0:12],decrypt_times_MEGA)
 ax6.axhline(y=rsa512_mark_MEGA_decrypt, color='gray', linestyle=':') #RSA-155 (RSA-512 bits)
 ax6.text(252,rsa512_mark_MEGA_decrypt, "RSA-512", va='center', ha="left", bbox=face_comb)
-ax6.text(18,rsa512_mark_MEGA_decrypt, "331241")
-ax6.set_ylabel('[ms]', fontsize=10)
+#ax6.text(18,rsa512_mark_MEGA_decrypt, "331241")
+ax6.set_ylabel('[ms]', fontsize=15)
 plt.xticks(np.arange(40,261,20))
+plt.title("Keysize vs. Decryption - MEGA")
 ax6.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
 plt.plot(155, rsa512_mark_MEGA_decrypt, 'xr')
 
@@ -171,9 +182,11 @@ plt.plot(155, rsa512_mark_MEGA_decrypt, 'xr')
 #keysize vs keygen
 fig7, ax7 = plt.subplots(1,figsize=(12,9))
 ax7.plot(keysizes[0:4],keygen_time_UNO)
-ax7.set_ylabel('[ms]', fontsize=10)
+ax7.set_ylabel('[ms]', fontsize=15)
 plt.xticks(np.arange(40,121,20))
 ax7.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
+
+plt.title("Keysize vs. Key Generation - UNO")
 
 #keysize vs encrypt
 
@@ -193,11 +206,13 @@ ax8.axhline(y=rsa512_mark_ESP8266_keygen, color='gray', linestyle=':') #RSA-155 
 ax8.axhline(y=rsa1024_mark_ESP8266_keygen, color='gray', linestyle=':') #RSA-1024 (309 decimals)
 ax8.text(325,rsa512_mark_ESP8266_keygen, "RSA-512", va='center', ha="left", bbox=face_comb)
 ax8.text(325,rsa1024_mark_ESP8266_keygen, "RSA-1024", va='center', ha="left", bbox=face_comb)
-ax8.set_ylabel('[ms]', fontsize=10)
+ax8.set_ylabel('[ms]', fontsize=15)
 ax8.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
+plt.title("KEYSIZE VS KEYGEN ESP8266")
 plt.xticks(np.arange(40,321,20))
 plt.plot(155, rsa512_mark_ESP8266_keygen, 'xr')
 plt.plot(309, rsa1024_mark_ESP8266_keygen, 'xr')
+
 
 #keysize vs encryption
 rsa512_mark_ESP8266_encrypt = 179
@@ -208,17 +223,18 @@ ax9.axhline(y=rsa512_mark_ESP8266_encrypt, color='gray', linestyle=':') #RSA-155
 ax9.axhline(y=rsa1024_mark_ESP8266_encrypt, color='gray', linestyle=':') #RSA-1024 (309 decimals)
 ax9.text(325,rsa512_mark_ESP8266_encrypt, "RSA-512", va='center', ha="left", bbox=face_comb)
 ax9.text(325,rsa1024_mark_ESP8266_encrypt, "RSA-1024", va='center', ha="left", bbox=face_comb)
-ax9.set_ylabel('[ms]', fontsize=10)
+ax9.set_ylabel('[ms]', fontsize=15)
 ax9.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
 plt.xticks(np.arange(40,321,20))
 plt.plot(155, rsa512_mark_ESP8266_encrypt, 'xr')
 plt.plot(309, rsa1024_mark_ESP8266_encrypt, 'xr')
-
+plt.title("Keysize vs. Encryption - ESP8266")
 #keysize vs decryption
 fig10, ax10 = plt.subplots(1,figsize=(12,9))
 ax10.plot(keysizes[0:5],decrypt_times_ESP8266)
-ax10.set_ylabel('[ms]', fontsize=10)
+ax10.set_ylabel('[ms]', fontsize=15)
 ax10.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
+plt.title("Keysize vs. Decryption - ESP8266")
 
 
 ###### ALL DEVICES - keysize vs keygen
@@ -230,14 +246,15 @@ ax11.plot(keysizes[0:16],keygen_time_ESP8266,label='ESP8266') #8266
 ax11.axvline(x=155,ymin=0,ymax=0.55, color='gray', linestyle=':') #RSA-155 (RSA-512 bits)
 ax11.axvline(x=309,ymin=0,ymax=0.55,color='gray', linestyle=':') #RSA-1024 (309 decimals)
 ax11.axvline(x=617,ymin=0,ymax=0.55, color='gray', linestyle=':') #RSA-2048 (617 decimals)
-
+plt.title("Keysize vs. Key Generation")
 ax11.text(162,25, "RSA-512", va='center', ha="left", bbox=face_comb)
 ax11.text(316,25, "RSA-1024", va='center', ha="left", bbox=face_comb)
 ax11.text(565,25, "RSA-2048", va='center', ha="left", bbox=face_comb)
 
-ax11.set_ylabel('[ms]', fontsize=10)
+ax11.set_ylabel('[ms]', fontsize=15)
 ax11.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
 ax11.legend(loc='best')
+
 plt.xticks(keysizeticks)
 plt.yticks(np.arange(0,141,5))
 
@@ -250,12 +267,12 @@ ax12.plot(keysizes[0:16],encrypt_times_ESP8266,label='ESP8266') #8266
 ax12.axvline(x=155,ymin=0,ymax=0.55, color='gray', linestyle=':') #RSA-155 (RSA-512 bits)
 ax12.axvline(x=309,ymin=0,ymax=0.55,color='gray', linestyle=':') #RSA-1024 (309 decimals)
 ax12.axvline(x=617,ymin=0,ymax=0.55, color='gray', linestyle=':') #RSA-2048 (617 decimals)
-
+plt.title("Keysize vs. Encryption")
 ax12.text(162,2000, "RSA-512", va='center', ha="left", bbox=face_comb)
 ax12.text(316,2000, "RSA-1024", va='center', ha="left", bbox=face_comb)
 ax12.text(565,2000, "RSA-2048", va='center', ha="left", bbox=face_comb)
 
-ax12.set_ylabel('[ms]', fontsize=10)
+ax12.set_ylabel('[ms]', fontsize=15)
 ax12.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
 ax12.legend(loc='best')
 plt.xticks(keysizeticks)
@@ -276,11 +293,12 @@ ax13.text(162,125000, "RSA-512", va='center', ha="left", bbox=face_comb)
 ax13.text(316,125000, "RSA-1024", va='center', ha="left", bbox=face_comb)
 ax13.text(565,125000, "RSA-2048", va='center', ha="left", bbox=face_comb)
 
-ax13.set_ylabel('[ms]', fontsize=10)
+ax13.set_ylabel('[ms]', fontsize=15)
 ax13.set_xlabel('[Public Key Size (# Decimals)]', fontsize='medium')
 ax13.legend(loc='best')
+plt.title("Keysize vs. Decryption")
 plt.xticks(keysizeticks)
-plt.yticks(np.arange(0,1240001,35000))
+plt.yticks(np.arange(0,1240001,50000))
 
 
 plt.show()
