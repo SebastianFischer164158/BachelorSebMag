@@ -6,6 +6,9 @@ from scapy.all import *
 from subprocess import check_output
 print("SCAPY VERSION USED: "+ scapy._version())
 print("Python Version Used: "+ sys.version)
+
+####Test til at sniffe UDP pakker fra SCS. 
+
 def setMonitorMode():
 
     checkphrase_mon_success = "monitor mode vif enabled"
