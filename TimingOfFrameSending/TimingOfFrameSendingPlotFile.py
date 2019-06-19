@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np, scipy.stats as st
 from scipy.optimize import curve_fit
 plt.style.use("seaborn-darkgrid")
+font = {'size'   : 15}
 
+plt.rc('font', **font)
 def mean_confidence_interval(data):
     conf = st.t.interval(0.95, len(data) - 1, loc=np.mean(data), scale=st.sem(data))
     return conf
@@ -47,6 +49,6 @@ ax1.scatter(np.full(10,6),dataarray[5],marker='x',s=25,alpha=0.6,label='30s')
 ax1.legend(loc='best',frameon=True,framealpha=0.5)
 
 ax1.set_xticklabels(['5', '10', '15', '20','25','30'])
-ax1.set_ylabel('Frames', fontsize=10)
+ax1.set_ylabel('Frames', fontsize=15)
 ax1.set_xlabel('Time (s)', fontsize='medium')
 plt.show()
