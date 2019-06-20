@@ -25,3 +25,4 @@ Denne folder indeholder indeholder følgende:
 
 12. SniffingUDP.py
 
+I hver af ovenstående mapper er der yderligerere en README.txt til at beskrive det specifikke indhold.
