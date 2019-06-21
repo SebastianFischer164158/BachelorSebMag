@@ -1,6 +1,7 @@
 #WiFiExchangeDone folder
 
-Denne folder indeholder de kryptografiske algoritmer. Samtidig indeholder de implementeringerne af WiFi kommunikationen, henholdsvis reciveren og clienten. 
+Denne folder indeholder de kryptografiske algoritmer. 
+Samtidig indeholder de implementeringerne af WiFi kommunikationen, henholdsvis receiveren og clienten. 
 
 
 1. AES.h
