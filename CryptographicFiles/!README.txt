@@ -1,5 +1,6 @@
-In this directory, both AES and RSA encryption and decryption methods, are located.
+#CryptographicFiles
+Denne folder indeholder de to krypteringsalgoritmer, blot ved Arduino fil formatet. 
 
-RSA.ino contains methods to encrypt and decrypt with RSA functionality. 
+1. AES.ino
 
-AES.ino
+2. RSA.ino
