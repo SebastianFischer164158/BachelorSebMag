@@ -1,4 +1,12 @@
-I denne mappe ligger der txt filer af alle udførte DoS angreb, 
-TCP SYN Flood, ICMP Flood og UDP Flood, i form af et ping resultat (test). 
-Derudover ligger der et python script, lavet til at extracte alle tiderne 
-fra en af følgende filer, hvoraf muligheden tilstår til at lave plots af dette.
+#PingTest
+Denne folder indeholder ping test foretaget under de diverse DoS angreb. 
+
+1. ExtractTime.py
+
+2. ICMPAttack_pingtest.txt
+
+2. TCPAttack_pingtest.txt
+
+3. TCPWebServerAttack_pingtest.txt
+
+4. UDPAttack_pingtest.txt
